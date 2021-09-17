@@ -1,10 +1,9 @@
 <head>
   <style>
     .center_div{
-      display:flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
