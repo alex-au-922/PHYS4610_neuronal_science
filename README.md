@@ -32,14 +32,17 @@ These membrane currents **depolarize the cell** and **generates a voltage signal
 ### Izhikevich Model
 Most neurons are excitable in that they can fire a voltage spike when stimulated. We will explore the model proposed by ***Eugene Izhikevich***. The Izhikevich model does not account for the biophysics of neurons. It uses mathematical equations to compute a wide range of spiking patterns for cortical neurons. The output is **incredibly realistic** and **biologically plausible**.
 
-4 hyperparameters, $a$, $b$, $c$ and $d$ are used in the Izhikevich model to determine the spiking and bursting behavior of the known types of cortical neurons. The time evolution of membrane potential $v$ is described by the differential equations:
+4 hyperparameters, a, b, c and d are used in the Izhikevich model to determine the spiking and bursting behavior of the known types of cortical neurons. The time evolution of membrane potential v is described by the differential equations:
 
-$$ \left\{
+```math
+\left\{
 \begin{array}{ll}
        \dot{v} = c_1v^2 + c_2v + c_3 - c_4u + c_5I\\
        \dot{u} = a(bv - u)\\
 \end{array} 
-\right.  $$
+\right.  
+```
+
 The after-spike setting relationship is that **if** v >= +30 mV **then** v tends to c **and** u tends to u + d, where c, d are **hyperparameters** and u is the **membrane recovery variable**.
 <br>
 
