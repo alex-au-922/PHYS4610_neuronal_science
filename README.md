@@ -45,7 +45,7 @@ Most neurons are excitable in that they can fire a voltage spike when stimulated
 
 <div class = center_div>
   <img src = "https://latex.codecogs.com/svg.latex?%5Cdot%7Bv%7D%20%3D%20c_1v%5E2%20+%20c_2v%20+%20c_3%20-%20c_4u%20+%20c_5I">
-  <img src = "https://latex.codecogs.com/svg.download?%5Cdot%7Bu%7D%20%3D%20a%28bv%20-%20u%29">
+  <img src = "https://latex.codecogs.com/svg.latex?%5Cdot%7Bu%7D%20%3D%20a%28bv%20-%20u%29">
 </div>
 The after-spike setting relationship is that **if** v >= +30 mV **then** v tends to c **and** u tends to u + d, where c, d are **hyperparameters** and u is the **membrane recovery variable**.
 <br>
