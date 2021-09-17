@@ -21,7 +21,7 @@ and **large organic anions**.
 <img src = 'https://www.irastoworldhealth.com/web/uploads/editor_uploads/neuron2.jpg?v217' style = 'text-align: center;'></img>
 
 In the resting state, the axon membrane is **highly permeable** to **K+** ions, **slightly** permeable to **Na+** ions, and **impermeable** to large **organic** anions. Since more K+ ions leak out of the cell than Na+ ions that leak into the cell, the inside of the cell is **more negative** than the outside. 
-
+$`e^{i\pi} + 1 = 0`$
 This potential difference is called the membrane potential $`v_m(t)`$. The outside of the cell is taken as the reference potential $`0V`$. The **resting membrane potential** is often $`-65\space\text{mV}`$.
 <br>
 ### Simulating Action Potential
