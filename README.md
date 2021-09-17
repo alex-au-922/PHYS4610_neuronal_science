@@ -4,7 +4,7 @@
 ---
 ## Basics of Neuronal Science
 
-Refernce: [Click this link](http://www.columbia.edu/cu/appliedneuroshp/Spring2018/Spring18SHPAppliedNeuroLec5.pdf)
+Reference: [Click this link](http://www.columbia.edu/cu/appliedneuroshp/Spring2018/Spring18SHPAppliedNeuroLec5.pdf)
 
 ### Introduction
 Neurons are the elementary processing units in the brain and central nervous system. When a neuron receives an appropriate stimulus, it produces **action potentials** (electrical impulses) that are propagated along its axon. When the pulse reaches the end of the neuron, other neurons or muscle cells may be activated.
