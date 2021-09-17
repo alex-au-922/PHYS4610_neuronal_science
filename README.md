@@ -2,7 +2,8 @@
   <style>
     .center_div{
       display: flex;
-      justify-content: center;  
+      justify-content: center;
+      align-items: center;
     }
   </style>
 </head>
