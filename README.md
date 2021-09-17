@@ -1,13 +1,3 @@
-<head>
-  <style>
-    .center_div{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  </style>
-</head>
-
 # PHYS4610_neuronal_science
 ## Current Status
 
