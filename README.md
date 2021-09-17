@@ -22,7 +22,7 @@ and **large organic anions**.
 
 In the resting state, the axon membrane is **highly permeable** to **K+** ions, **slightly** permeable to **Na+** ions, and **impermeable** to large **organic** anions. Since more K+ ions leak out of the cell than Na+ ions that leak into the cell, the inside of the cell is **more negative** than the outside. 
 
-This potential difference is called the membrane potential $v_m(t)$. The outside of the cell is taken as the reference potential $0V$. The **resting membrane potential** is often $-65\space\text{mV}$.
+This potential difference is called the membrane potential $`v_m(t)`$. The outside of the cell is taken as the reference potential $`0V`$. The **resting membrane potential** is often $`-65\space\text{mV}`$.
 <br>
 ### Simulating Action Potential
 When a neuron receives a sufficient stimulus from other neuron, the permeability of the cell membrane changes. There is an **influx of Na+** ions into the cell while **K+ ions leave**. The movement of ions across the membrane constitute an **electric current signal**, which propagates along the axon to its terminals.
