@@ -1,3 +1,13 @@
+<head>
+  <style>
+    .center_div{
+      display:flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
 # PHYS4610_neuronal_science
 ## Current Status
 
@@ -34,13 +44,10 @@ Most neurons are excitable in that they can fire a voltage spike when stimulated
 
 4 hyperparameters, a, b, c and d are used in the Izhikevich model to determine the spiking and bursting behavior of the known types of cortical neurons. The time evolution of membrane potential v is described by the differential equations:
 
+<div class = center_div>
 ![](https://latex.codecogs.com/svg.latex?%5Cdot%7Bv%7D%20%3D%20c_1v%5E2%20+%20c_2v%20+%20c_3%20-%20c_4u%20+%20c_5I)
-
-```math
-\dot{v} = c_1v^2 + c_2v + c_3 - c_4u + c_5I
-\dot{u} = a(bv - u)
-```
-
+![](https://latex.codecogs.com/svg.download?%5Cdot%7Bu%7D%20%3D%20a%28bv%20-%20u%29)
+</div>
 The after-spike setting relationship is that **if** v >= +30 mV **then** v tends to c **and** u tends to u + d, where c, d are **hyperparameters** and u is the **membrane recovery variable**.
 <br>
 
