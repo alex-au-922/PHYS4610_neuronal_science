@@ -21,13 +21,13 @@ and **large organic anions**.
 <img src = 'https://www.irastoworldhealth.com/web/uploads/editor_uploads/neuron2.jpg?v217' style = 'text-align: center;'></img>
 
 In the resting state, the axon membrane is **highly permeable** to **K+** ions, **slightly** permeable to **Na+** ions, and **impermeable** to large **organic** anions. Since more K+ ions leak out of the cell than Na+ ions that leak into the cell, the inside of the cell is **more negative** than the outside. 
-$`e^{i\pi} + 1 = 0`$
-This potential difference is called the membrane potential $`v_m(t)`$. The outside of the cell is taken as the reference potential $`0V`$. The **resting membrane potential** is often $`-65\space\text{mV}`$.
+
+This potential difference is called the membrane potential v_m(t). The outside of the cell is taken as the reference potential 0V. The **resting membrane potential** is often -65 mV.
 <br>
 ### Simulating Action Potential
 When a neuron receives a sufficient stimulus from other neuron, the permeability of the cell membrane changes. There is an **influx of Na+** ions into the cell while **K+ ions leave**. The movement of ions across the membrane constitute an **electric current signal**, which propagates along the axon to its terminals.
 
-These membrane currents **depolarize the cell** and **generates a voltage signal**, which are called **spikes**. The duration of each spike is **less than a few milliseconds** or less and has a peak voltage of about $+100\space\text{mV}$.
+These membrane currents **depolarize the cell** and **generates a voltage signal**, which are called **spikes**. The duration of each spike is **less than a few milliseconds** or less and has a peak voltage of about +100 mV.
 <br>
 ### Izhikevich Model
 Most neurons are excitable in that they can fire a voltage spike when stimulated. We will explore the model proposed by ***Eugene Izhikevich***. The Izhikevich model does not account for the biophysics of neurons. It uses mathematical equations to compute a wide range of spiking patterns for cortical neurons. The output is **incredibly realistic** and **biologically plausible**.
@@ -40,28 +40,28 @@ $$ \left\{
        \dot{u} = a(bv - u)\\
 \end{array} 
 \right.  $$
-The after-spike setting relationship is that **if** $v \ge +30\space\text{mV}$ **then** $v \rightarrow c$ **and** $u \rightarrow u + d$, where $c$, $d$ are **hyperparameters** and $u$ is the **membrane recovery variable**.
+The after-spike setting relationship is that **if** v >= +30 mV **then** v tends to c **and** u tends to u + d, where c, d are **hyperparameters** and u is the **membrane recovery variable**.
 <br>
 
 ### Description of Izhikevich Model
 The dimensions and the variables inside the model are:
 | Variable   | Description | Unit |
 | ----------- | ----------- |------|
-| $v$    |Membrane Potential| $\text{mV}$|
-| $t$   | Time        | $\text{ms}$ |
-| $\frac{dv}{dt}$| Time rate of change <br> in membrane potential| $\text{mV} / \text{ms}$|
-| $u$ | Recovery Variable| $\text{mV}$ |
-| $I$ | External Currents to the cell <br> (synaptic current or DC) | $\text{mA}$ |
+| v    |Membrane Potential| mV|
+| t   | Time        | ms |
+| dv/dt| Time rate of change <br> in membrane potential| mV/ms|
+| u | Recovery Variable| mV |
+| I | External Currents to the cell <br> (synaptic current or DC) | A |
 <br>
 
 For **regular spiking neurons**, the hyperparameters are:
 
 | Hyperparameters  |Value | 
 | ----------- | ----------- |
-| $a$    | $0.02$| 
-| $b$   | $0.20$| 
-| $c$| $-65.0$| 
-| $d$ | $8.00$| 
+| a| 0.02| 
+| b   | 0.20| 
+| c| -65.0| 
+| d | 8.00| 
 
 <br>
 
@@ -69,8 +69,8 @@ For **fast spiking neurons**, the hyperparameters are:
 
 | Hyperparameters  |Value | 
 | ----------- | ----------- |
-| $a$    | $0.10$| 
-| $b$   | $0.20$| 
-| $c$| $-65.0$| 
-| $d$ | $2.00$| 
+| a    | 0.10| 
+| b   | 0.20| 
+| c| -65.0| 
+| d | 2.00| 
 
