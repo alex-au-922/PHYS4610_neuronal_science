@@ -1,4 +1,7 @@
+
 import yaml
+
+from network.network import NeuronNetworkTimeSeries, NeuronNetwork
 from network.network import NeuronNetwork, NeuronNetworkTimeSeries
 import utils
 import numpy as np
@@ -15,6 +18,9 @@ def main():
     
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time = network_constant["totalTime"]
+    while (network.time < total_time):
+        network.output()
+        network.step()
     while (network.time < total_time):
         network.output()
         network.step()
