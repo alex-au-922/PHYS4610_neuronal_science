@@ -3,6 +3,7 @@ NeuronNetwork:
   initUpBound: 10
   seed: 10
 NeuronNetworkTimeSeries:
+  max_v: 30
   dt: 0.125
   c1: 0.04
   c2: 5

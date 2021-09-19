@@ -20,6 +20,19 @@ class NeuronNetwork:
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
+        a_exc = self.arg["EXCITED"]["a"]
+        a_inh = self.arg["INHIBIT"]["a"]
+        b_exc = self.arg["EXCITED"]["b"]
+        b_inh = self.arg["INHIBIT"]["b"]
+        c_exc = self.arg["EXCITED"]["c"]
+        c_inh = self.arg["INHIBIT"]["c"]
+        d_exc = self.arg["EXCITED"]["d"]
+        d_inh = self.arg["INHIBIT"]["d"]
+        self.a = [a_exc if (self.node_type_map[n] == 1) else a_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        self.b = [b_exc if (self.node_type_map[n] == 1) else b_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        self.c = [c_exc if (self.node_type_map[n] == 1) else c_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        self.d = [d_exc if (self.node_type_map[n] == 1) else d_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+
         self.t_spike = [None]*(self.N + 1)
         for i in range(len(self.t_spike)):
             self.t_spike[i] = np.zeros(self.arg['maxSpike'])
@@ -78,18 +91,12 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
 
     def u_step(self):
-        a_Exc = self.arg["EXCITED"]["a"]
-        a_Inh = self.arg["INHIBIT"]["a"]
-        b_Exc = self.arg["EXCITED"]["b"]
-        b_Inh = self.arg["INHIBIT"]["b"]
-        a = [a_Exc if (self.node_type_map[n] == 1) else a_Inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        b = [b_Exc if (self.node_type_map[n] == 1) else b_Inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        return a * (b * self.v_arr - self.u_arr)
+        return self.a * (self.b * self.v_arr - self.u_arr)
 
     def I_step(self):
         return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
-    def G_Exc_step(self):
+    def G_exc_step(self):
         # Loop for all keys
         for i, j_list in self.exc_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
@@ -98,7 +105,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             self.G_exc_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
 
-    def G_Inh_step(self):
+    def G_inh_step(self):
         for i, j_list in self.inh_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
@@ -106,16 +113,29 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             self.G_inh_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
     def step(self):
-        
-        # Calcutaion
-        new_v = self.v_step
-        new_u = self.u_step
-        new_I = self.I_step
-        new_G_Exc = self.G_Exc_step
-        new_G_Inh = self.G_Inh_step
-        # Replace
+        exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
+        for index in exceeded_indies:
+            # Modify spike time
+            self.t_spike[index][self.t_spike_indices[index]] = self.time
+            self.t_spike_indices[index] += 1
+            # Reset u, v
+            self.v_arr[index] = self.c[index]
+            self.u_arr[index] += self.d[index]
 
-        pass
+        # Calcutaion
+        new_v = self.v_step()
+        new_u = self.u_step()
+        new_I = self.I_step()
+        new_G_exc = self.G_exc_step()
+        new_G_inh = self.G_inh_step()
+        # Replace
+        self.v_arr = new_v
+        self.u_arr = new_u
+        self.I_arr = new_I
+        self.G_exc_arr = new_G_exc
+        self.G_inh_arr = new_G_inh
+
+        self.time += self.arg["dt"]
 
 
 
