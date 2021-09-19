@@ -5,10 +5,12 @@ class NeuronNetwork:
         self.node_list = []
         self.node_map = {}
         self.initialize_from_adj_matrix(w_matrix)
-        
-        
-        
-        
+    
+    def check_node_type(self,w_matrix):
+        '''Check whether the node type is consistent'''
+        for column in w_matrix.T:
+            assert all(column >= 0) or all(column <= 0)   
+
     def initialize_from_adj_matrix(self, w_matrix):
         (i_max, j_max) = w_matrix.shape
         for i in range(1, i_max):
