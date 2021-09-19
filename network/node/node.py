@@ -1,3 +1,9 @@
+import enum
+class NodeType(enum.Enum):
+    EXCITED = 1
+    INHIBIT = -1
+    UNCLEAR = 0
+
 class Node:
     '''Implementation of Node in weighted directed graphs'''
     # in_nodes of a Node => list of (nodes that are directed to self Node, weight)
