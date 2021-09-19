@@ -16,7 +16,7 @@ class NeuronNetwork:
         utils.functions.random_seed(self.arg['seed'])
         self.u_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.v_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
-        self.I_arr = 
+        self.I_arr = None
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
@@ -30,7 +30,7 @@ class NeuronNetwork:
         self.exc_node_map = {}
         self.inh_node_map = {}
     
-        # self.initialize_from_adj_matrix()
+        self.initialize_from_adj_matrix()
     
     def check_node_type(self,w_matrix):
         '''Check whether the node type is consistent'''
@@ -48,14 +48,14 @@ class NeuronNetwork:
                     else:
                         self.exc_node_map[i].append(j)
                 if (w_ij < 0):
-                    if i not in self.exc_node_map:
+                    if i not in self.inh_node_map:
                         self.inh_node_map[i] = [j]
                     else:
                         self.inh_node_map[i].append(j)
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
-    def __init__(self, w_matrix, *args, **kwargs):
-        super().__init__(w_matrix = w_matrix, *args, **kwargs)
+    def __init__(self, w_matrix):
+        super().__init__(w_matrix = w_matrix)
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         
@@ -82,6 +82,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Calcutaion
 
         # Replace
+
+        pass
 
 
 

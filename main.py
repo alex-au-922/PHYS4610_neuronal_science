@@ -1,4 +1,5 @@
 
+from utils.readcsv import ReadCSV
 import yaml
 
 from network.network import NeuronNetworkTimeSeries, NeuronNetwork
@@ -23,6 +24,14 @@ def main():
         network.step()
     pass
 
+def test():
+    w_matrix = ReadCSV().values
+    print(w_matrix)
+    network = NeuronNetworkTimeSeries(w_matrix)
+    print(network.exc_node_map)
+    print(network.inh_node_map)
+
 
 if __name__ == "__main__":
-    main()
+    #main()
+    test()
