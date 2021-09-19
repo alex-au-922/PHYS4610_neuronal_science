@@ -46,11 +46,19 @@ class NeuronNetwork:
             self.node_list.append(self.node_map[n])
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
+<<<<<<< HEAD
     def __init__(self, w_matrix, *args, **kwargs):
         super().__init__(w_matrix = w_matrix, *args, **kwargs)
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         print(self.arg)
+=======
+    def __init__(self):
+        super().__init__()
+        self.time = 0
+        with open('constants.yaml') as stream:
+            self. = yaml.safe_load(stream)["t"]
+>>>>>>> e60568a150a953a2ea37deb3552d5165d2f5089e
         
     # def v_step(self) -> np.ndarray:
     #     noise_arr = np.ones_like(self.v_arr) * noise 
@@ -63,6 +71,15 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 if __name__ == "__main__":
     obj = NeuronNetworkTimeSeries()
 
+<<<<<<< HEAD
+=======
+    def u_step(v_vec: np.ndarray, u_vec:np.ndarray, args):
+        pass
+
+    
+    def output:
+        pass
+>>>>>>> e60568a150a953a2ea37deb3552d5165d2f5089e
 
 
 
