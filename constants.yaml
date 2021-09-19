@@ -1,4 +1,4 @@
-General:
+general:
   - step: 0.125
   - seed: 10
   - file_path: "utils/DIV66_BMI0_g.txt"

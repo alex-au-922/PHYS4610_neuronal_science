@@ -1,4 +1,5 @@
 from .node import *
+import utils.functions
 
 class NeuronNetwork:
     def __init__(self, w_matrix, init_u_arr, init_v_arr):
@@ -34,9 +35,15 @@ class NeuronNetwork:
                 self.node_map[n] = InhiNeuron(self.init_u_arr[n], self.init_v_arr[n])
             self.node_list.append(self.node_map[n])
                     
+class NeuronNetworkTimeSeries:
+    def __init__(self):
+        self.initLowBound = -10
+        self.initUpBound = 10
+        self.numberOfNodes = 4095
+        self.init_u_arr = utils.functions.random_vec(self.numberOfNodes + 1, self.initLowBound, self.initUpBound)
+        self.init_v_arr = utils.functions.random_vec(self.numberOfNodes + 1, self.initLowBound, self.initUpBound)
 
-
-                
+       
 
 
 
