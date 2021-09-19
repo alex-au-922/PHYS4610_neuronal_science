@@ -1,29 +1,10 @@
 import numpy as np
-import enum
 
-class Constants:
-    '''Class of constants useful in the project'''
-    synapticMatrixPath = 'utils/DIV66_BMI0_g.txt'
-    numberOfNodes = 4095
+def random_seed(seed: int) -> None:
+    np.random.seed(seed)
 
-class Node(enum.Enum):
-    '''Nodes of EXCITED, INHIBIT and UNCLEAR type in categorical data types.'''
-    EXCITED = 1
-    INHIBIT = -1
-    UNCLEAR = 0
+def random_vec(numberOfNodes: int, lowbound: float, upbound: float) -> np.ndarray:
+    return np.random.random(numberOfNodes)*(upbound - lowbound) + lowbound
 
-class Functions:
-    '''Storing all the functions and'''
-    def __init__(self):
-        self.v = np.zeros(Constants.numberOfNodes + 1, dtype = np.float64)
-        self.u = np.zeros(Constants.numberOfNodes + 1, dtype = np.float64)
-        self.nodeType = np.zeros(Constants.numberOfNodes + 1, dtype = np.int8)
-        self.durationOfSpike = None
-        self. 
-
-    def randomGaussian(self):
-        return np.random.standard_normal(1)
-
-if __name__ == "__main__":
-    obj = Functions()
-    print(obj.randomGaussian())
+def v_step(v_vec: np.ndarray, I_vec: np.ndarray, time_step: float) -> np.ndarray:
+    assert v_vec.shape[0] == I_vec.shape[0]
