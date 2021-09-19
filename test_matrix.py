@@ -1,7 +1,9 @@
-import numpy as np
-
-matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
-i, j = matrix.shape
-
-for row in matrix.T:
-    print(row)
+import yaml
+class NeuronNetwork:
+    def __init__(self):
+        with open('constants.yaml') as stream:
+            self.arg = yaml.safe_load(stream)[self.__class__.__name__]
+        print(self.arg)
+        
+if __name__ == "__main__":
+    obj = NeuronNetwork()
