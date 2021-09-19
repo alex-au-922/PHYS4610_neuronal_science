@@ -28,6 +28,9 @@ class NeuronNetwork:
 
         self.node_list = []
         #self.node_map = {}
+        # node_type_map[n] = 1 => node_n is Excitor
+        # node_type_map[n] = -1 => node_n is Inhibitor
+        self.node_type_map = {}
         self.exc_node_map = {}
         self.inh_node_map = {}
     
@@ -44,11 +47,13 @@ class NeuronNetwork:
             for j in range(1, j_max):
                 w_ij = self.w_matrix[i][j]
                 if (w_ij > 0):
+                    self.node_type_map[j] = 1
                     if i not in self.exc_node_map:
                         self.exc_node_map[i] = [j]
                     else:
                         self.exc_node_map[i].append(j)
                 if (w_ij < 0):
+                    self.node_type_map[j] = -1
                     if i not in self.inh_node_map:
                         self.inh_node_map[i] = [j]
                     else:
@@ -85,8 +90,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         pass
 
     def step(self):
+        
         # Calcutaion
-
+        new_v = self.v_step
+        new_u = self.u_step
+        new_I = self.I_step
+        new_G_Exc = self.G_Exc_step
+        new_G_Inh = self.G_Inh_step
         # Replace
 
         pass
