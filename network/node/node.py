@@ -17,21 +17,22 @@ class Node:
         self.out_nodes.append((node_j, weight))
         node_j.in_nodes.append((self, weight))
 
-class Neuron(Node):
-    # u: Recovery variable
-    # v: Membrane potential
-    def __init__(self, u, v):
-        super().__init__()
-        self.u = u
-        self.v = v
 
-class ExciNeuron(Neuron):
-    def __init__(self, u, v):
-        super().__init__(u, v)
+# class Neuron(Node):
+#     # u: Recovery variable
+#     # v: Membrane potential
+#     def __init__(self, u, v):
+#         super().__init__()
+#         self.u = u
+#         self.v = v
+
+class ExciNeuron(Node):
+    def __init__(self, n):
         self.neuron_type = NodeType.EXCITED
+        self.n = n
 
-class InhiNeuron(Neuron):
-    def __init__(self, u, v):
-        super().__init__(u, v)
+class InhiNeuron(Node):
+    def __init__(self, n):
         self.neuron_type = NodeType.INHIBIT
+        self.n = n
         

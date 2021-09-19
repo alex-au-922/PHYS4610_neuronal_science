@@ -18,6 +18,8 @@ class NeuronNetwork:
         self.v_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.I_arr = 
 
+        # self.node_map[n].neuron_type == NodeType.EXCITED
+
         self.node_list = []
         self.node_map = {}
         # self.initialize_from_adj_matrix()
@@ -42,9 +44,9 @@ class NeuronNetwork:
         if n not in self.node_map:
             # Check if Node n is Excitor or Inhibitor
             if any(self.w_matrix[i][n] > 0 for i in range(1, len(self.w_matrix))):
-                self.node_map[n] = ExciNeuron(self.init_u_arr[n], self.v_arr[n])
+                self.node_map[n] = ExciNeuron(self.init_u_arr[n], self.v_arr[n], n)
             if any(self.w_matrix[i][n] < 0 for i in range(1, len(self.w_matrix))):
-                self.node_map[n] = InhiNeuron(self.init_u_arr[n], self.v_arr[n])
+                self.node_map[n] = InhiNeuron(self.init_u_arr[n], self.v_arr[n], n)
             self.node_list.append(self.node_map[n])
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
@@ -62,6 +64,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
     def u_step(self):
         pass
+
+
 if __name__ == "__main__":
     obj = NeuronNetworkTimeSeries()
 

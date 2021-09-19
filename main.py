@@ -21,9 +21,6 @@ def main():
     while (network.time < total_time):
         network.output()
         network.step()
-    while (network.time < total_time):
-        network.output()
-        network.step()
     pass
 
 
