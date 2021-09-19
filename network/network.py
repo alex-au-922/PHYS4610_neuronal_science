@@ -20,9 +20,15 @@ class NeuronNetwork:
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
-        self.t_spike = np.zeros(self.N+1)
-        for i in self.t_spike.shape[0]:
-            self.t_spike[i] = np.zeros(0)
+        self.maxK = 20000
+        self.t_spike = [None]*(self.N + 1)
+        for i in range(len(self.t_spike)):
+            self.t_spike[i] = np.zeros(self.maxK)
+            for j in range(self.maxK):
+                self.t_spike[i][j] = np.inf
+        self.t_spike = np.array(self.t_spike)
+
+        self.t_spike_indices = [0]*(self.N + 1)
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -71,20 +77,26 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         pass
 
     def I_step(self):
-        pass
+        return np.dot(self.G_exc_arr,self.arg['ve'] - self.v_arr) - np.dot(self.G_inh_arr, self.v_arr - self.arg['vI'])
 
     def G_Exc_step(self):
         # Loop for all keys
-        buff_dict = {}
-        for key, key_list in self.exc_node_map.items():
-            if key not in buff_dict:
-                weight_matrix = self.w_matrix[key][key_list]
-                inner_matrix = self.t_spike[key_list]
+        for i, j_list in self.exc_node_map.items():
+            new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
+            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)), axis = 1)
+            weight = self.w_matrix[:, i][j_list]
+            self.G_exc_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+
 
     def G_Inh_step(self):
-        pass
+        for i, j_list in self.inh_node_map.items():
+            new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
+            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)), axis = 1)
+            weight = np.abs(self.w_matrix[:, i][j_list])
+            self.G_inh_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
     def step(self):
+
         # Calcutaion
 
         # Replace
