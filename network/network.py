@@ -6,7 +6,8 @@ class NeuronNetwork:
     def __init__(self, w_matrix):
         self.w_matrix = w_matrix
         self.N = len(w_matrix) - 1
-        self.arg = yaml.safe_load('constants.yaml')[self.__name__]
+        with open('constants.yaml') as stream:
+            self.arg = yaml.safe_load(stream)[self.__class__.__name__]
         self.init_u_arr = utils.functions.random_vec(self.N, self.initLowBound, self.initUpBound)
         self.init_v_arr = utils.functions.random_vec(self.N, self.initLowBound, self.initUpBound)
         self.node_list = []
