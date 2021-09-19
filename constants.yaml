@@ -7,6 +7,8 @@ general:
   c5: 1
 NeuronNetwork:
   dt: 0.125
+  initLowBound: -10
+  initUpBound: 10
   seed: 10
   c1: 0.04
   c2: 5
