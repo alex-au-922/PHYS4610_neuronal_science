@@ -1,11 +1,14 @@
 from .node import *
+import yaml
 import utils.functions
 
 class NeuronNetwork:
-    def __init__(self, w_matrix, init_u_arr, init_v_arr):
+    def __init__(self, w_matrix):
         self.w_matrix = w_matrix
-        self.init_u_arr = init_u_arr
-        self.init_v_arr = init_v_arr
+        self.N = len(w_matrix) - 1
+        self.arg = 
+        self.init_u_arr = utils.functions.random_vec(self.N, self.initLowBound, self.initUpBound)
+        self.init_v_arr = utils.functions.random_vec(self.N, self.initLowBound, self.initUpBound)
         self.node_list = []
         self.node_map = {}
         self.initialize_from_adj_matrix(w_matrix)
@@ -36,15 +39,14 @@ class NeuronNetwork:
             self.node_list.append(self.node_map[n])
                     
 class NeuronNetworkTimeSeries:
-    def __init__(self):
-        self.initLowBound = -10
-        self.initUpBound = 10
-        self.numberOfNodes = 4095
+    def __init__(self, initLowBound, initUpBound, numberOfNodes):
+        self.initLowBound = initLowBound
+        self.initUpBound = initUpBound
+        self.numberOfNodes = numberOfNodes
         self.init_u_arr = utils.functions.random_vec(self.numberOfNodes + 1, self.initLowBound, self.initUpBound)
         self.init_v_arr = utils.functions.random_vec(self.numberOfNodes + 1, self.initLowBound, self.initUpBound)
 
-       
-
+    def 
 
 
 

@@ -8,6 +8,8 @@ general:
   - c3: 140
   - c4: -1
   - c5: 1
+NeuronNetwork:
+  - dt: 0.125
 INHIBIT:
   - a: 0.1
   - b: 0.2
