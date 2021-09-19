@@ -10,13 +10,14 @@ NeuronNetwork:
   initUpBound: 10
   seed: 10
 NeuronNetworkTimeSeries:
-  totalTime: 7500
   dt: 0.125
   c1: 0.04
   c2: 5
   c3: 140
   c4: -1
   c5: 1
+Main:
+  totalTime: 7500
 
 INHIBIT:
   a: 0.1
