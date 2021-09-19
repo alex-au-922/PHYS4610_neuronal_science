@@ -46,6 +46,9 @@ class NeuronNetwork:
 class NeuronNetworkTimeSeries(NeuronNetwork):
     def __init__(self):
         super().__init__()
+        self.time = 0
+        with open('constants.yaml') as stream:
+            self. = yaml.safe_load(stream)["t"]
         
     def v_step(self) -> np.ndarray:
         noise_arr = np.ones_like(self.v_arr) * noise 
@@ -54,6 +57,11 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         v_vec += v_vec_delta
 
     def u_step(v_vec: np.ndarray, u_vec:np.ndarray, args):
+        pass
+
+    
+    def output:
+        pass
 
 
 
