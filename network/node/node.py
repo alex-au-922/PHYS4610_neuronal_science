@@ -9,8 +9,10 @@ class Node:
     # in_nodes of a Node => list of (nodes that are directed to self Node, weight)
     # out_nodes of a Node => list of (nodes that are directed from self Node, weight)
     def __init__(self):
-        self.in_nodes = []
-        self.out_nodes = []
+        self.in_exc_nodes = []
+        self.in_inh_nodes = []
+        self.out_exc_nodes = []
+        self.out_inh_nodes = []
 
     # connect int the following way: self --(weight)--> node_j
     def direct_to(self, node_j, weight):

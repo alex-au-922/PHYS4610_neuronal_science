@@ -16,6 +16,12 @@ NeuronNetworkTimeSeries:
   c3: 140
   c4: -1
   c5: 1
+  ve: 0
+  vI: -80
+  tauExc: 5
+  tauInh: 6
+  beta: 2
+
 Main:
   totalTime: 7500
 

@@ -17,6 +17,11 @@ class NeuronNetwork:
         self.u_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.v_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.I_arr = 
+        self.G_exc_arr = np.zeros(self.N + 1)
+        self.G_inh_arr = np.zeros(self.N + 1)
+
+        self.t_spike = [None]*(self.N+1)
+
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -59,11 +64,26 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         noise_arr = np.ones_like(self.v_arr) * \
             utils.functions.random_gaussian(self.arg['sigma'])*np.sqrt(self.arg['dt'])
         
-        self.v_arr += (self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
-             + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_vec + noise_arr)*self.arg['dt'] 
+        return self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
+             + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
 
     def u_step(self):
         pass
+
+    def I_step(self):
+        pass
+
+    def G_Exc_step(self):
+        pass
+
+    def G_Inh_step(self):
+        pass
+
+    def step(self):
+        # Calcutaion
+
+        # Replace
+
 
 
 if __name__ == "__main__":
