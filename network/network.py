@@ -26,7 +26,10 @@ class NeuronNetwork:
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
         self.node_list = []
-        self.node_map = {}
+        #self.node_map = {}
+        self.exc_node_map = {}
+        self.inh_node_map = {}
+    
         # self.initialize_from_adj_matrix()
     
     def check_node_type(self,w_matrix):
@@ -37,22 +40,21 @@ class NeuronNetwork:
     def initialize_from_adj_matrix(self):
         (i_max, j_max) = self.w_matrix.shape
         for i in range(1, i_max):
-            self._create_node(i)
+            #self._create_node(i)
             for j in range(1, j_max):
-                self._create_node(j)
+                #self._create_node(j)
                 w_ij = self.w_matrix[i][j]
                 if (w_ij != 0):
                     self.node_map[j].direct_to(self.node_map[i], w_ij)
 
     def _create_node(self, n):
         '''Create Node n if not exists'''
-        if n not in self.node_map:
-            # Check if Node n is Excitor or Inhibitor
-            if any(self.w_matrix[i][n] > 0 for i in range(1, len(self.w_matrix))):
-                self.node_map[n] = ExciNeuron(self.init_u_arr[n], self.v_arr[n], n)
-            if any(self.w_matrix[i][n] < 0 for i in range(1, len(self.w_matrix))):
-                self.node_map[n] = InhiNeuron(self.init_u_arr[n], self.v_arr[n], n)
-            self.node_list.append(self.node_map[n])
+        # Check if Node n is Excitor or Inhibitor
+        if any(self.w_matrix[i][n] > 0 for i in range(1, self.N + 1)):
+            self.node_map[n] = Neuron(n, NodeType.EXCITED)
+        if any(self.w_matrix[i][n] < 0 for i in range(1, self.N + 1)):
+            self.node_map[n] = Neuron(n, NodeType.EXCITED)
+        self.node_list.append(self.node_map[n])
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
     def __init__(self, w_matrix, *args, **kwargs):
