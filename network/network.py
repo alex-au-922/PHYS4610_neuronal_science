@@ -14,9 +14,9 @@ class NeuronNetwork:
             self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
         
         utils.functions.random_seed(self.arg['seed'])
-        self.u_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
-        self.v_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.I_arr = np.zeros(self.N + 1)
+        self.u_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
+        self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
@@ -78,7 +78,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
 
     def u_step(self):
-        pass
+        a_Exc = self.arg["EXCITED"]["a"]
+        a_Inh = self.arg["INHIBIT"]["a"]
+        b_Exc = self.arg["EXCITED"]["b"]
+        b_Inh = self.arg["INHIBIT"]["b"]
+        a = [a_Exc if (self.node_type_map[n] == 1) else a_Inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        b = [b_Exc if (self.node_type_map[n] == 1) else b_Inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        return a * (b * self.v_arr - self.u_arr)
 
     def I_step(self):
         return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
