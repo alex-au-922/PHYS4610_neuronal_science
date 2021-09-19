@@ -1,4 +1,4 @@
-from network.network import NeuronNetwork
+from network.network import NeuronNetworkTimeSeries, NeuronNetwork
 import utils
 import numpy as np
 
@@ -9,8 +9,7 @@ def main():
     network = NeuronNetwork(w_matrix)
     # 3. Step until time t, store 
     dt = 0.125
-    time = 0
-    
+    time = 0    
     pass
 
 
