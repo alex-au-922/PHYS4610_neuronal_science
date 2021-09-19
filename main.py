@@ -10,9 +10,9 @@ import numpy as np
 def main():
     # 1. Load weight matrix from file
     #    Load constant values from .yaml
-    w_matrix = None
     with open('constants.yaml') as stream:
         network_constant = yaml.safe_load(stream)["Main"]
+    w_matrix = ReadCSV(network_constant['file_path']).values
     
     # 2. Create Neuron Network from weight matrix, u, v
     network = NeuronNetworkTimeSeries(w_matrix)
@@ -35,5 +35,4 @@ def test():
 
 
 if __name__ == "__main__":
-    #main()
-    test()
+    main()
