@@ -1,9 +1,17 @@
-import yaml
-class NeuronNetwork:
+import numpy as np
+class Hi:
     def __init__(self):
-        with open('constants.yaml') as stream:
-            self.arg = yaml.safe_load(stream)[self.__class__.__name__]
-        print(self.arg.get('initLowBound'))
+        self.N = 4095
+        self.t_spike = [None]*(self.N + 1)
+        for i in range(len(self.t_spike)):
+            self.t_spike[i]= [np.inf,1,2]
+            self.t_spike[i] = np.array(self.t_spike[i])
+        self.t_spike = np.array(self.t_spike)
+        j_list = [1,2,3]
+        self.time = 3
+        print(self.t_spike)
+        print(np.sum(np.expself.t_spike[j_list][:,1:])
 
+        
 if __name__ == "__main__":
-    obj = NeuronNetwork()
+    obj = Hi()

@@ -17,7 +17,6 @@ NeuronNetworkTimeSeries:
 Main:
   totalTime: 7500
   file_path: "DIV66_BMI0_g.txt"
-
 INHIBIT:
   a: 0.1
   b: 0.2

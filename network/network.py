@@ -20,8 +20,9 @@ class NeuronNetwork:
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
-        self.t_spike = [None]*(self.N+1)
-
+        self.t_spike = np.zeros(self.N+1)
+        for i in self.t_spike.shape[0]:
+            self.t_spike[i] = np.zeros(0)
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -73,7 +74,12 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         pass
 
     def G_Exc_step(self):
-        pass
+        # Loop for all keys
+        buff_dict = {}
+        for key, key_list in self.exc_node_map.items():
+            if key not in buff_dict:
+                weight_matrix = self.w_matrix[key][key_list]
+                inner_matrix = self.t_spike[key_list]
 
     def G_Inh_step(self):
         pass
