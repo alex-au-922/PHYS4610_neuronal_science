@@ -4,11 +4,9 @@ import os
 
 # Testing for commit
 
-PATH = os.path.abspath('DIV66_BMI0_g.txt')
-
 class ReadCSV:
-    def __init__(self):
-        self.connectionMatrix = pd.read_csv(PATH, sep = '\t', header = None).values
+    def __init__(self, path):
+        self.connectionMatrix = pd.read_csv(path, sep = '\t', header = None).values
         self.startAtOne()
 
     def startAtOne(self) -> np.ndarray:

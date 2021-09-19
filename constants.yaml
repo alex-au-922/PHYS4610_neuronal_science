@@ -1,10 +1,3 @@
-general:
-  file_path: "utils/DIV66_BMI0_g.txt"
-  c1: 0.04
-  c2: 5
-  c3: 140
-  c4: -1
-  c5: 1
 NeuronNetwork:
   initLowBound: -10
   initUpBound: 10
@@ -21,9 +14,9 @@ NeuronNetworkTimeSeries:
   tauExc: 5
   tauInh: 6
   beta: 2
-
 Main:
   totalTime: 7500
+  file_path: "DIV66_BMI0_g.txt"
 
 INHIBIT:
   a: 0.1

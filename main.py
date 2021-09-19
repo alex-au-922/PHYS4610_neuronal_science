@@ -25,7 +25,9 @@ def main():
     pass
 
 def test():
-    w_matrix = ReadCSV().values
+    with open('constants.yaml') as stream:
+        network_constant = yaml.safe_load(stream)["Main"]
+    w_matrix = ReadCSV(network_constant['file_path']).values
     print(w_matrix)
     network = NeuronNetworkTimeSeries(w_matrix)
     print(network.exc_node_map)
