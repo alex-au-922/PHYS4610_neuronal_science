@@ -18,6 +18,12 @@ class ReadCSV:
             for j, value in enumerate(row):
                 bufferMatrix[i + 1][j + 1] = value
         self.connectionMatrix = bufferMatrix
+
+    def non_zero_count(self):
+        return np.count_nonzero(self.connectionMatrix)
+        
+    def size(self):
+        return self.connectionMatrix.size
     
     @property
     def values(self):
@@ -27,3 +33,5 @@ class ReadCSV:
 if __name__ == "__main__":
     data = ReadCSV()
     print(data.values)
+    print(data.non_zero_count())
+    print(data.size())
