@@ -1,8 +1,5 @@
 general:
-  - step: 0.125
-  - seed: 10
   - file_path: "utils/DIV66_BMI0_g.txt"
-  - number_of_Nodes: 4095
   - c1: 0.04
   - c2: 5
   - c3: 140
@@ -10,6 +7,12 @@ general:
   - c5: 1
 NeuronNetwork:
   - dt: 0.125
+  - seed: 10
+  - c1: 0.04
+  - c2: 5
+  - c3: 140
+  - c4: -1
+  - c5: 1
 INHIBIT:
   - a: 0.1
   - b: 0.2
