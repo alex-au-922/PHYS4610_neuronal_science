@@ -28,7 +28,7 @@ class Neuron(Node):
 class ExciNeuron(Neuron):
     def __init__(self, u, v):
         super().__init__(u, v)
-        self.neuron_type = NodeType.EXCITE
+        self.neuron_type = NodeType.EXCITED
 
 class InhiNeuron(Neuron):
     def __init__(self, u, v):
