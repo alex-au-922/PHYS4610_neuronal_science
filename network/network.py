@@ -15,9 +15,23 @@ class NeuronNetwork:
             for j in range(1, j_max):
                 if w_matrix[i][j] == 0:
                     continue
-                if (i, j) in self.node_map:
+                if j not in self.node_map:
+                    if (w_matrix[i][j] > 0):
+                        temp = ExciNeuron()
+                        self.node_map[j] = temp
+                        self.node_list.append(temp)
+                    if (w_matrix[i][j] < 0):
+                        temp = InhiNeuron()
+                        self.node_map[j] = temp
+                        self.node_list.append(temp)
                     continue
-                self.node_map[(i, j)] = Neuron()
+                if j in self.node_map:
+                    pass
+
+
+                
+
+
 
 
 
