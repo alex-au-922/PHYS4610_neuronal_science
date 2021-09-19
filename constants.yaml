@@ -14,6 +14,17 @@ NeuronNetworkTimeSeries:
   tauExc: 5
   tauInh: 6
   beta: 2
+  maxSpike: 2000
+  INHIBIT:
+    a: 0.1
+    b: 0.2
+    c: -65.0
+    d: 2
+  EXCITED:
+    a: 0.02
+    b: 0.2
+    c: -65.0
+    d: 8
 Main:
   totalTime: 7500
   file_path: "DIV66_BMI0_g.txt"
@@ -22,8 +33,4 @@ INHIBIT:
   b: 0.2
   c: -65.0
   d: 2
-EXCITED:
-  a: 0.02
-  b: 0.2
-  c: -65.0
-  d: 8
+

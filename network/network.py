@@ -16,15 +16,14 @@ class NeuronNetwork:
         utils.functions.random_seed(self.arg['seed'])
         self.u_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
         self.v_arr = utils.functions.random_vec(self.N, self.arg['initLowBound'], self.arg['initUpBound'])
-        self.I_arr = None
+        self.I_arr = np.zeros(self.N + 1)
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
 
-        self.maxK = 20000
         self.t_spike = [None]*(self.N + 1)
         for i in range(len(self.t_spike)):
-            self.t_spike[i] = np.zeros(self.maxK)
-            for j in range(self.maxK):
+            self.t_spike[i] = np.zeros(self.arg['maxSpike'])
+            for j in range(self.arg['maxSpike']):
                 self.t_spike[i][j] = np.inf
         self.t_spike = np.array(self.t_spike)
 
@@ -82,13 +81,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         pass
 
     def I_step(self):
-        return np.dot(self.G_exc_arr,self.arg['ve'] - self.v_arr) - np.dot(self.G_inh_arr, self.v_arr - self.arg['vI'])
+        return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
     def G_Exc_step(self):
         # Loop for all keys
         for i, j_list in self.exc_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
-            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)), axis = 1)
+            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
             weight = self.w_matrix[:, i][j_list]
             self.G_exc_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
@@ -96,7 +95,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def G_Inh_step(self):
         for i, j_list in self.inh_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
-            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)), axis = 1)
+            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
             weight = np.abs(self.w_matrix[:, i][j_list])
             self.G_inh_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
