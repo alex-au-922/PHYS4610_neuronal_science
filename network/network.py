@@ -19,6 +19,26 @@ class NeuronNetwork:
         self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
+        self.t_spike = [None]*(self.N + 1)
+        for i in range(len(self.t_spike)):
+            self.t_spike[i] = np.zeros(self.arg['maxSpike'])
+            for j in range(self.arg['maxSpike']):
+                self.t_spike[i][j] = np.inf
+        self.t_spike = np.array(self.t_spike)
+        self.t_spike_indices = [0]*(self.N + 1)
+
+        # self.node_map[n].neuron_type == NodeType.EXCITED
+
+        self.node_list = []
+        #self.node_map = {}
+        # node_type_map[n] = 1 => node_n is Excitor
+        # node_type_map[n] = -1 => node_n is Inhibitor
+        self.node_type_map = {}
+        # Rubbish value
+        self.node_type_map[0] = 0
+        self.exc_node_map = {}
+        self.inh_node_map = {}
+        self.initialize_from_adj_matrix()
 
         a_exc = self.arg["EXCITED"]["a"]
         a_inh = self.arg["INHIBIT"]["a"]
@@ -32,27 +52,6 @@ class NeuronNetwork:
         self.b = [b_exc if (self.node_type_map[n] == 1) else b_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
         self.c = [c_exc if (self.node_type_map[n] == 1) else c_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
         self.d = [d_exc if (self.node_type_map[n] == 1) else d_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-
-        self.t_spike = [None]*(self.N + 1)
-        for i in range(len(self.t_spike)):
-            self.t_spike[i] = np.zeros(self.arg['maxSpike'])
-            for j in range(self.arg['maxSpike']):
-                self.t_spike[i][j] = np.inf
-        self.t_spike = np.array(self.t_spike)
-
-        self.t_spike_indices = [0]*(self.N + 1)
-
-        # self.node_map[n].neuron_type == NodeType.EXCITED
-
-        self.node_list = []
-        #self.node_map = {}
-        # node_type_map[n] = 1 => node_n is Excitor
-        # node_type_map[n] = -1 => node_n is Inhibitor
-        self.node_type_map = {}
-        self.exc_node_map = {}
-        self.inh_node_map = {}
-    
-        self.initialize_from_adj_matrix()
     
     def check_node_type(self,w_matrix):
         '''Check whether the node type is consistent'''
@@ -70,16 +69,20 @@ class NeuronNetwork:
                         self.exc_node_map[i] = [j]
                     else:
                         self.exc_node_map[i].append(j)
+                    continue
                 if (w_ij < 0):
                     self.node_type_map[j] = -1
                     if i not in self.inh_node_map:
                         self.inh_node_map[i] = [j]
                     else:
                         self.inh_node_map[i].append(j)
+                    continue
+                self.node_type_map[j] = 0
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
     def __init__(self, w_matrix):
         super().__init__(w_matrix = w_matrix)
+        self.time = 0
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         
@@ -94,6 +97,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         return self.a * (self.b * self.v_arr - self.u_arr)
 
     def I_step(self):
+        print(self.G_exc_arr)
         return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
     def G_exc_step(self):
@@ -125,9 +129,10 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Calcutaion
         new_v = self.v_step()
         new_u = self.u_step()
-        new_I = self.I_step()
+        
         new_G_exc = self.G_exc_step()
         new_G_inh = self.G_inh_step()
+        new_I = self.I_step()
         # Replace
         self.v_arr = new_v
         self.u_arr = new_u
@@ -136,6 +141,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.G_inh_arr = new_G_inh
 
         self.time += self.arg["dt"]
+
+        print(self.v_arr)
 
 
 
