@@ -4,6 +4,7 @@ import yaml
 import sys
 import utils.functions
 import numpy as np
+import numba as nb
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -144,7 +145,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
         self.time += self.arg["dt"]
 
-        print(self.v_arr)
+        # print(self.v_arr)
 
 
 
