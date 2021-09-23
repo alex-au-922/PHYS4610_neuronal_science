@@ -11,7 +11,7 @@ class NeuronNetwork:
         self.N = len(w_matrix) - 1
         self.arg = {}
         with open('constants.yaml') as stream:
-            self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
+            self.arg.update(yaml  .load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
         
         utils.functions.random_seed(self.arg['seed'])
         self.I_arr = np.zeros(self.N + 1)
@@ -97,24 +97,26 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         return self.a * (self.b * self.v_arr - self.u_arr)
 
     def I_step(self):
-        print(self.G_exc_arr)
         return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
     def G_exc_step(self):
         # Loop for all keys
+        buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
             weight = self.w_matrix[:, i][j_list]
-            self.G_exc_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-
+            buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        return buff_G_exc
 
     def G_inh_step(self):
+        buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
             new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
             weight = np.abs(self.w_matrix[:, i][j_list])
-            self.G_inh_arr[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        return buff_G_inh
 
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
