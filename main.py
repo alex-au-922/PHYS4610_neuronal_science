@@ -20,10 +20,11 @@ def main():
     
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(network_constant["totalTime"] / network_constant['dt'])
-    for i in tqdm(range(total_time_step)):
+    for _ in tqdm(range(total_time_step)):
     # while (network.time < total_time):
     #     #network.output()
         network.step()
+        # break
     # pass
 
 def test():

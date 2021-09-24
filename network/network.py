@@ -3,8 +3,9 @@ from .node import *
 import yaml
 import utils.functions
 import numpy as np
+import numba as nb
 from tqdm import tqdm
-#import numba as nb
+import numexpr as ne
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -106,7 +107,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Loop for all keys
         buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
-            new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
+            new_matrix = self.t_spike[j_list]
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
             weight = self.w_matrix[:, i][j_list]
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
@@ -116,7 +117,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def G_inh_step(self):
         buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
-            new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
+            new_matrix = self.t_spike[j_list]
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
             weight = np.abs(self.w_matrix[:, i][j_list])
             buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
@@ -127,7 +128,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
         for index in exceeded_indies:
             # Modify spike time
-            self.t_spike[index][self.t_spike_indices[index]] = self.time
+            self.t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = self.time
             self.t_spike_indices[index] += 1
             # Reset u, v
             self.v_arr[index] = self.c[index]
