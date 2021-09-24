@@ -5,7 +5,6 @@ import utils.functions
 import numpy as np
 import numba as nb
 from tqdm import tqdm
-import numexpr as ne
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -41,6 +40,8 @@ class NeuronNetwork:
         self.exc_node_map = {}
         self.inh_node_map = {}
         self.initialize_from_adj_matrix()
+
+        self.mat = np.ones(self.arg['maxSpike'])
 
         a_exc = self.arg["EXCITED"]["a"]
         a_inh = self.arg["INHIBIT"]["a"]
@@ -106,17 +107,20 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Loop for all keys
         buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
-            new_matrix = self.t_spike[j_list]
-            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
+            new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
+            gamma_j = np.matmul(new_matrix, self.mat)
             weight = self.w_matrix[:, i][j_list]
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         return buff_G_exc
+    
+    
+    
 
     def G_inh_step(self):
         buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
-            new_matrix = self.t_spike[j_list]
-            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
+            new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
+            gamma_j = np.matmul(new_matrix, self.mat)
             weight = np.abs(self.w_matrix[:, i][j_list])
             buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         
