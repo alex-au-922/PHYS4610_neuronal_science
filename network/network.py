@@ -4,19 +4,6 @@ import yaml
 import utils.functions
 import numpy as np
 import numba as nb
-from tqdm import tqdm
-import time 
-
-def timer(func):
-    from functools import wraps
-    @wraps(func)
-    def wrapper(*args,**kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        total = time.time() - start
-        print(f'{func.__name__}: {round(total,6)}')
-        return result
-    return wrapper
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
