@@ -6,6 +6,7 @@ from network.network import NeuronNetworkTimeSeries, NeuronNetwork
 from network.network import NeuronNetwork, NeuronNetworkTimeSeries
 import utils
 import numpy as np
+from tqdm import tqdm
 
 def main():
     # 1. Load weight matrix from file
@@ -18,8 +19,8 @@ def main():
     network = NeuronNetworkTimeSeries(w_matrix)
     
     # 3. Step until time t, store Spike, and time series of v, u, I
-    total_time = network_constant["totalTime"]
-    while (network.time < total_time):
+    total_time_step = int(network_constant["totalTime"] / network_constant['dt'])
+    for i in tqdm(range(total_time_step)):
         #network.output()
         network.step()
     pass

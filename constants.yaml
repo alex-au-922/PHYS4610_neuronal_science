@@ -30,3 +30,4 @@ NeuronNetworkTimeSeries:
 Main:
   totalTime: 7500
   file_path: "DIV66_BMI0_g.txt"
+  dt: 0.125

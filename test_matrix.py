@@ -17,9 +17,8 @@ class Hi:
         # new_matrix = self.t_spike[j_list][:, :max(self.t_spike_indices)]
         # self.time = 10
         # print(np.sum(np.exp(-1*np.abs(self.time - new_matrix)), axis = 1))
-        a = np.array([1,2,3])
-        b = np.array([3,4,5])
-        print(a*b)
+        with open('constants.yaml') as stream:
+            a = yaml.load()
 
 
 if __name__ == "__main__":

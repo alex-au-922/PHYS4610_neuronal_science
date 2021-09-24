@@ -1,9 +1,22 @@
-from yaml import loader
+from numba.np.ufunc import parallel
 from .node import *
 import yaml
-import sys
 import utils.functions
 import numpy as np
+import numba as nb
+from tqdm import tqdm
+import time 
+
+def timer(func):
+    from functools import wraps
+    @wraps(func)
+    def wrapper(*args,**kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        total = time.time() - start
+        print(f'{func.__name__}: {round(total,6)}')
+        return result
+    return wrapper
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -11,7 +24,7 @@ class NeuronNetwork:
         self.N = len(w_matrix) - 1
         self.arg = {}
         with open('constants.yaml') as stream:
-            self.arg.update(yaml  .load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
+            self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
         
         utils.functions.random_seed(self.arg['seed'])
         self.I_arr = np.zeros(self.N + 1)
@@ -59,8 +72,9 @@ class NeuronNetwork:
             assert all(column >= 0) or all(column <= 0)   
 
     def initialize_from_adj_matrix(self):
+        print("Initializing the sparse matrix from adjacency matrix...")
         (i_max, j_max) = self.w_matrix.shape
-        for i in range(1, i_max):
+        for i in tqdm(range(1, i_max)):
             for j in range(1, j_max):
                 w_ij = self.w_matrix[i][j]
                 if (w_ij > 0):
@@ -85,14 +99,14 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.time = 0
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
-        
+    
     def v_step(self):
         noise_arr = np.ones_like(self.v_arr) * \
             utils.functions.random_gaussian(self.arg['sigma'])*np.sqrt(self.arg['dt'])
         
         return self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
-
+    
     def u_step(self):
         return self.a * (self.b * self.v_arr - self.u_arr)
 
@@ -116,6 +130,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauInh']), axis = 1)
             weight = np.abs(self.w_matrix[:, i][j_list])
             buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        
         return buff_G_inh
 
     def step(self):
@@ -144,7 +159,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
         self.time += self.arg["dt"]
 
-        print(self.v_arr)
+        # print(self.v_arr)
 
 
 

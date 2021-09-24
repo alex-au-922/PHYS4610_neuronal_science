@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
-import os
 
 # Testing for commit
 
 class ReadCSV:
     def __init__(self, path):
+        print("Initializing the connection matrix...")
         self.connectionMatrix = pd.read_csv(path, sep = '\t', header = None).values
         self.startAtOne()
 
