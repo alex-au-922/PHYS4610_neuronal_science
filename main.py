@@ -5,7 +5,7 @@ from network.network import NeuronNetworkTimeSeries, NeuronNetwork
 from network.network import NeuronNetwork, NeuronNetworkTimeSeries
 import utils
 import numpy as np
-import numba as nb
+#import numba as nb
 from tqdm import tqdm
 
 def main():

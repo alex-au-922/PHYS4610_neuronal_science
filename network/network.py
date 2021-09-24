@@ -1,9 +1,10 @@
-from numba.np.ufunc import parallel
+#from numba.np.ufunc import parallel
 from .node import *
 import yaml
 import utils.functions
 import numpy as np
-import numba as nb
+from tqdm import tqdm
+#import numba as nb
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -100,6 +101,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def I_step(self):
         return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
+    @profile
     def G_exc_step(self):
         # Loop for all keys
         buff_G_exc = np.zeros_like(self.G_exc_arr)
@@ -110,6 +112,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         return buff_G_exc
 
+    @profile
     def G_inh_step(self):
         buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
