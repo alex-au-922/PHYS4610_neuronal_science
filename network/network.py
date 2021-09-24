@@ -108,7 +108,16 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
             new_matrix = self.t_spike[j_list]
-            gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
+            #gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
+            
+            # Break down starts
+            abs_matrix = np.abs(self.time - new_matrix)
+            negative_abs_matrix = -1 * abs_matrix
+            div_matrix = negative_abs_matrix/self.arg['tauExc']
+            exp_matrix = np.exp(div_matrix)
+            gamma_j = np.sum(exp_matrix, axis = 1)
+            # Break down completes
+
             weight = self.w_matrix[:, i][j_list]
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         return buff_G_exc
