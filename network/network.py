@@ -170,12 +170,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.v_step()
         self.u_step()
         
-        t1 = Thread(target = self.G_exc_step)
-        t2 = Thread(target = self.G_inh_step)
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        self.G_exc_step()
+        self.G_inh_step()
 
 
         self.I_step()
