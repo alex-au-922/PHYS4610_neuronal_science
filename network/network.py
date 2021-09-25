@@ -6,6 +6,8 @@ import numpy as np
 import numba as nb
 from tqdm import tqdm
 
+np.seterr(all='raise')
+
 class NeuronNetwork:
     def __init__(self, w_matrix):
         self.w_matrix = w_matrix
@@ -103,7 +105,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         try:
             self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
-        except OverflowError as e:
+        except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_v_arr}\n')
@@ -113,7 +115,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def u_step(self):
         try:
             self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
-        except OverflowError as e:
+        except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_u_arr}\n')
@@ -122,7 +124,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def I_step(self):
         try:
             self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
-        except OverflowError as e:
+        except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_I_arr}\n')
