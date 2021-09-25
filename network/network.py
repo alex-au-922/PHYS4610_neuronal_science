@@ -5,6 +5,7 @@ import utils.functions
 import numpy as np
 import numba as nb
 from tqdm import tqdm
+from threading import Thread
 
 np.seterr(all='raise')
 
@@ -133,23 +134,21 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
     def G_exc_step(self):
         # Loop for all keys
-        buff_G_exc = np.zeros_like(self.G_exc_arr)
+        self.buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauExc'])
             gamma_j = np.matmul(self.exc_t_spike[j_list], self.mat)
             weight = self.w_matrix[:, i][j_list]
-            buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-        return buff_G_exc
+            self.buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        
 
     def G_inh_step(self):
-        buff_G_inh = np.zeros_like(self.G_inh_arr)
+        self.buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
             gamma_j = np.matmul(self.inh_t_spike[j_list], self.mat)
             weight = np.abs(self.w_matrix[:, i][j_list])
-            buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-        
-        return buff_G_inh
+            self.buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
 
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
@@ -171,15 +170,21 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.v_step()
         self.u_step()
         
-        new_G_exc = self.G_exc_step()
-        new_G_inh = self.G_inh_step()
+        t1 = Thread(target = self.G_exc_step)
+        t2 = Thread(target = self.G_inh_step)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+
         self.I_step()
         # Replace
         self.v_arr = self.buff_v_arr
         self.u_arr = self.buff_u_arr
         self.I_arr = self.buff_I_arr
-        self.G_exc_arr = new_G_exc
-        self.G_inh_arr = new_G_inh
+        self.G_exc_arr = self.buff_G_exc
+        self.G_inh_arr = self.buff_G_inh
 
         self.time += self.arg["dt"]
 
