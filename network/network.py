@@ -51,19 +51,14 @@ class NeuronNetwork:
 
         self.mat = np.ones(self.arg['maxSpike'])
 
-        a_exc = self.arg["EXCITED"]["a"]
-        a_inh = self.arg["INHIBIT"]["a"]
-        b_exc = self.arg["EXCITED"]["b"]
-        b_inh = self.arg["INHIBIT"]["b"]
-        c_exc = self.arg["EXCITED"]["c"]
-        c_inh = self.arg["INHIBIT"]["c"]
-        d_exc = self.arg["EXCITED"]["d"]
-        d_inh = self.arg["INHIBIT"]["d"]
-        self.a = [a_exc if (self.node_type_map[n] == 1) else a_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.b = [b_exc if (self.node_type_map[n] == 1) else b_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.c = [c_exc if (self.node_type_map[n] == 1) else c_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.d = [d_exc if (self.node_type_map[n] == 1) else d_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        self.a = self.create_constant_list(self.arg["EXCITED"]["a"], self.arg["INHIBIT"]["a"])
+        self.b = self.create_constant_list(self.arg["EXCITED"]["b"], self.arg["INHIBIT"]["b"])
+        self.c = self.create_constant_list(self.arg["EXCITED"]["c"], self.arg["INHIBIT"]["c"])
+        self.d = self.create_constant_list(self.arg["EXCITED"]["d"], self.arg["INHIBIT"]["d"])
     
+    def create_constant_list(self, exc, inh):
+        return np.array([exc if (self.node_type_map[n] == 1) else inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ])
+
     def check_node_type(self,w_matrix):
         '''Check whether the node type is consistent'''
         for column in w_matrix.T:
@@ -190,6 +185,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
         self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
         self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
+        self.reset_index = []
         
         self.G_exc_step()
         self.G_inh_step()
