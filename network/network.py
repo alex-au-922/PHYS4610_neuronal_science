@@ -106,7 +106,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_v_arr}\n')
 
-            @nb.njit()
+            # @nb.njit()
             def check_overflow():
                 for i in nb.prange(len(self.v_arr)):
                     try:
@@ -125,7 +125,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_u_arr}\n')
             
-            @nb.njit()
+            # @nb.njit()
             def check_overflow():
                 for i in nb.prange(len(self.u_arr)):
                     try:
