@@ -147,21 +147,22 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
     def G_exc_step(self):
         # Loop for all keys
-        self.buff_G_exc = np.zeros_like(self.G_exc_arr)
+        buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauExc'])
             gamma_j = np.matmul(self.exc_t_spike[j_list], self.mat)
             weight = self.w_matrix[:, i][j_list]
-            self.buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-        
+            buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        return buff_G_exc
 
     def G_inh_step(self):
-        self.buff_G_inh = np.zeros_like(self.G_inh_arr)
+        buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
             gamma_j = np.matmul(self.inh_t_spike[j_list], self.mat)
             weight = np.abs(self.w_matrix[:, i][j_list])
-            self.buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+        return buff_G_inh
 
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
@@ -183,12 +184,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.v_step()
         self.u_step()
 
-        self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
-        self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
-        self.reset_index = []
+        if self.reset_index != []:
+            self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
+            self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
+            self.reset_index = []
         
-        self.G_exc_step()
-        self.G_inh_step()
+        new_G_exc = self.G_exc_step()
+        new_G_inh = self.G_inh_step()
 
 
         self.I_step()
@@ -196,8 +198,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.v_arr = self.buff_v_arr
         self.u_arr = self.buff_u_arr
         self.I_arr = self.buff_I_arr
-        self.G_exc_arr = self.buff_G_exc
-        self.G_inh_arr = self.buff_G_inh
+        self.G_exc_arr = new_G_exc
+        self.G_inh_arr = new_G_inh
 
         self.time += self.arg["dt"]
 
