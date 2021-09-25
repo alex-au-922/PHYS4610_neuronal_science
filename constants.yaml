@@ -2,7 +2,7 @@ NeuronNetwork:
   initLowBound: -1
   initUpBound: 1
   seed: 10
-  maxSpike: 300
+  maxSpike: 200
   sigma: 3
   INHIBIT:
     a: 0.1
