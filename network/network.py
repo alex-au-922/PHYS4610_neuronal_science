@@ -5,7 +5,6 @@ import utils.functions
 import numpy as np
 import numba as nb
 from tqdm import tqdm
-from threading import Thread
 
 np.seterr(all='raise')
 
@@ -35,6 +34,7 @@ class NeuronNetwork:
         self.inh_t_spike = np.array(self.t_spike)
         self.t_spike_indices = [0]*(self.N + 1)
         self.t_spike_record = [[]]*(self.N + 1)
+        self.reset_index = []
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -110,8 +110,17 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_v_arr}\n')
-            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
-             + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt']
+
+            @nb.njit()
+            def check_overflow():
+                for i in nb.prange(len(self.v_arr)):
+                    try:
+                        self.buff_v_arr[i] = self.v_arr[i] + (self.arg['c1']*self.v_arr[i]**2 + self.arg['c2'] * self.v_arr[i] \
+                            + self.arg['c3'] - self.arg['c4'] * self.u_arr + self.arg['c5'] * self.I_arr[i] + noise_arr) * self.arg['dt']
+                    except Exception:
+                        self.reset_index.append(i)
+
+            check_overflow()
 
     def u_step(self):
         try:
@@ -120,7 +129,16 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_u_arr}\n')
-            self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
+            
+            @nb.njit()
+            def check_overflow():
+                for i in nb.prange(len(self.u_arr)):
+                    try:
+                        self.buff_u_arr[i] =  self.u_arr[i] + (self.a[i] * (self.b[i] * self.v_arr[i] - self.u_arr[i]))*self.arg['dt']
+                    except Exception:
+                        self.reset_index.append(i)
+            
+            check_overflow()
 
     def I_step(self):
         try:
@@ -169,6 +187,9 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Calcutaion
         self.v_step()
         self.u_step()
+
+        self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
+        self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
         
         self.G_exc_step()
         self.G_inh_step()
