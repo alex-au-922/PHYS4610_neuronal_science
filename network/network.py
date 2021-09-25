@@ -106,19 +106,23 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def G_exc_step(self):
         # Loop for all keys
         buff_G_exc = np.zeros_like(self.G_exc_arr)
-        for i, j_list in self.exc_node_map.items():
-            new_matrix = self.t_spike[j_list]
-            #gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
+        #for i, j_list in self.exc_node_map.items():
+        for i in range(1, self.N + 1):
             
+            new_matrix = self.t_spike[self.exc_node_map[i]]
+            #gamma_j = np.sum(np.exp(-1*np.abs(self.time - new_matrix)/self.arg['tauExc']), axis = 1)
+
             # Break down starts
-            abs_matrix = np.abs(self.time - new_matrix)
+            # TODO: use lookup table
+            diff_matrix = self.time - new_matrix
+            abs_matrix = np.abs(diff_matrix)
             negative_abs_matrix = -1 * abs_matrix
             div_matrix = negative_abs_matrix/self.arg['tauExc']
             exp_matrix = np.exp(div_matrix)
             gamma_j = np.sum(exp_matrix, axis = 1)
             # Break down completes
 
-            weight = self.w_matrix[:, i][j_list]
+            weight = self.w_matrix[:, i][self.exc_node_map[i]]
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         return buff_G_exc
 
