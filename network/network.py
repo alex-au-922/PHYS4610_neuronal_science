@@ -31,6 +31,7 @@ class NeuronNetwork:
         self.exc_t_spike = np.array(self.t_spike)
         self.inh_t_spike = np.array(self.t_spike)
         self.t_spike_indices = [0]*(self.N + 1)
+        self.t_spike_record = [[]]*(self.N + 1)
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -100,34 +101,32 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         noise_arr = np.ones_like(self.v_arr) * \
             utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
         try:
-            buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
+            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
-            return buff_v_arr
         except OverflowError as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{buff_v_arr}\n')
-            return buff_v_arr
+                file.write(f'{self.buff_v_arr}\n')
+            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
+             + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt']
 
     def u_step(self):
         try:
-            buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
-            return  buff_u_arr
+            self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
         except OverflowError as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{buff_u_arr}\n')
-            return buff_u_arr
+                file.write(f'{self.buff_u_arr}\n')
+            self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
 
     def I_step(self):
         try:
-            buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
-            return buff_I_arr
+            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
         except OverflowError as e:
             with open("log.txt", 'a') as file:
-                file.write(f'{e}\new_matrixn')
-                file.write(f'{buff_I_arr}\n')
-            return buff_I_arr
+                file.write(f'{e}\n')
+                file.write(f'{self.buff_I_arr}\n')
+            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
 
     def G_exc_step(self):
@@ -156,6 +155,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             # Modify spike time for both excitory and inhibitory
             self.exc_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
             self.inh_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
+            self.t_spike_record[index].append(self.time // self.arg['dt'])
             self.t_spike_indices[index] += 1
             # Reset u, v
             self.v_arr[index] = self.c[index]
@@ -166,16 +166,16 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.inh_t_spike *= self.inh_decay_factor
 
         # Calcutaion
-        new_v = self.v_step()
-        new_u = self.u_step()
+        self.v_step()
+        self.u_step()
         
         new_G_exc = self.G_exc_step()
         new_G_inh = self.G_inh_step()
-        new_I = self.I_step()
+        self.I_step()
         # Replace
-        self.v_arr = new_v
-        self.u_arr = new_u
-        self.I_arr = new_I
+        self.v_arr = self.buff_v_arr
+        self.u_arr = self.buff_u_arr
+        self.I_arr = self.buff_I_arr
         self.G_exc_arr = new_G_exc
         self.G_inh_arr = new_G_inh
 

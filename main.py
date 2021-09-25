@@ -8,6 +8,9 @@ import numpy as np
 import numba as nb
 from tqdm import tqdm
 import datetime
+import shutil
+import os
+import pathlib
 
 def main():
     # 1. Load weight matrix from file
@@ -21,15 +24,25 @@ def main():
     
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(network_constant["totalTime"] / network_constant['dt'])
-    with open('log.txt', 'a') as file:
-        file.write(f'Start time: {datetime.datetime.now()}\n')
+    
+    start = datetime.datetime.now()
+
     for _ in tqdm(range(total_time_step)):
     # while (network.time < total_time):
     #     #network.output()
         network.step()
         # break
-    with open('log.txt', 'a') as file:
-        file.write(f'End time: {datetime.datetime.now()}\n')
+    
+    baseFolder = pathlib.Path('./result')
+    if not os.path.exists(baseFolder):
+        os.mkdir(baseFolder)
+    
+    directory = baseFolder / f'{start}'
+    os.mkdir(directory)
+
+    shutil.copy('constants.yaml', directory)
+    print(network.t_spike_record[1])
+
     # pass
 
 def test():
