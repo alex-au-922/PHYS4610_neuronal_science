@@ -98,7 +98,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     
     def v_step(self):
         noise_arr = np.ones_like(self.v_arr) * \
-            utils.functions.random_gaussian(self.arg['sigma'])*np.sqrt(self.arg['dt'])
+            utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
         try:
             buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
@@ -111,7 +111,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
     def u_step(self):
         try:
-            buff_u_arr =  self.a * (self.b * self.v_arr - self.u_arr)
+            buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
             return  buff_u_arr
         except OverflowError as e:
             with open("log.txt", 'a') as file:
