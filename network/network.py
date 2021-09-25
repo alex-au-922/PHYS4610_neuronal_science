@@ -20,12 +20,16 @@ class NeuronNetwork:
         self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
-        self.t_spike = [None]*(self.N + 1)
-        for i in range(len(self.t_spike)):
-            self.t_spike[i] = np.zeros(self.arg['maxSpike'])
-            for j in range(self.arg['maxSpike']):
-                self.t_spike[i][j] = np.inf
+        # self.t_spike = [None]*(self.N + 1)
+        # for i in range(len(self.t_spike)):
+        #     self.t_spike[i] = np.zeros(self.arg['maxSpike'])
+        #     for j in range(self.arg['maxSpike']):
+        #         self.t_spike[i][j] = np.inf
+        # self.t_spike = np.array(self.t_spike)
+        self.t_spike = [np.zeros(self.arg['maxSpike']) for _ in range(self.N + 1)]
         self.t_spike = np.array(self.t_spike)
+        self.exc_t_spike = np.array(self.t_spike)
+        self.inh_t_spike = np.array(self.t_spike)
         self.t_spike_indices = [0]*(self.N + 1)
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
@@ -89,38 +93,58 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.time = 0
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
+        self.exc_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauExc'])
+        self.inh_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauInh'])
     
     def v_step(self):
         noise_arr = np.ones_like(self.v_arr) * \
             utils.functions.random_gaussian(self.arg['sigma'])*np.sqrt(self.arg['dt'])
-        
-        return self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
+        try:
+            buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
-    
+            return buff_v_arr
+        except OverflowError as e:
+            with open("log.txt", 'a') as file:
+                file.write(f'{e}\n')
+                file.write(f'{buff_v_arr}\n')
+            return buff_v_arr
+
     def u_step(self):
-        return self.a * (self.b * self.v_arr - self.u_arr)
+        try:
+            buff_u_arr =  self.a * (self.b * self.v_arr - self.u_arr)
+            return  buff_u_arr
+        except OverflowError as e:
+            with open("log.txt", 'a') as file:
+                file.write(f'{e}\n')
+                file.write(f'{buff_u_arr}\n')
+            return buff_u_arr
 
     def I_step(self):
-        return self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+        try:
+            buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+            return buff_I_arr
+        except OverflowError as e:
+            with open("log.txt", 'a') as file:
+                file.write(f'{e}\new_matrixn')
+                file.write(f'{buff_I_arr}\n')
+            return buff_I_arr
+
 
     def G_exc_step(self):
         # Loop for all keys
         buff_G_exc = np.zeros_like(self.G_exc_arr)
         for i, j_list in self.exc_node_map.items():
-            new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
-            gamma_j = np.matmul(new_matrix, self.mat)
+            # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauExc'])
+            gamma_j = np.matmul(self.exc_t_spike[j_list], self.mat)
             weight = self.w_matrix[:, i][j_list]
             buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         return buff_G_exc
-    
-    
-    
 
     def G_inh_step(self):
         buff_G_inh = np.zeros_like(self.G_inh_arr)
         for i, j_list in self.inh_node_map.items():
-            new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
-            gamma_j = np.matmul(new_matrix, self.mat)
+            # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
+            gamma_j = np.matmul(self.inh_t_spike[j_list], self.mat)
             weight = np.abs(self.w_matrix[:, i][j_list])
             buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
         
@@ -129,12 +153,17 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
         for index in exceeded_indies:
-            # Modify spike time
-            self.t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = self.time
+            # Modify spike time for both excitory and inhibitory
+            self.exc_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
+            self.inh_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
             self.t_spike_indices[index] += 1
             # Reset u, v
             self.v_arr[index] = self.c[index]
             self.u_arr[index] += self.d[index]
+        
+        # Exponential decay for every time step 
+        self.exc_t_spike *= self.exc_decay_factor
+        self.inh_t_spike *= self.inh_decay_factor
 
         # Calcutaion
         new_v = self.v_step()

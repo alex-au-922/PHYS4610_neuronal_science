@@ -7,6 +7,7 @@ import utils
 import numpy as np
 import numba as nb
 from tqdm import tqdm
+import datetime
 
 def main():
     # 1. Load weight matrix from file
@@ -20,11 +21,15 @@ def main():
     
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(network_constant["totalTime"] / network_constant['dt'])
+    with open('log.txt', 'a') as file:
+        file.write(f'Start time: {datetime.datetime.now()}\n')
     for _ in tqdm(range(total_time_step)):
     # while (network.time < total_time):
     #     #network.output()
         network.step()
         # break
+    with open('log.txt', 'a') as file:
+        file.write(f'End time: {datetime.datetime.now()}\n')
     # pass
 
 def test():
