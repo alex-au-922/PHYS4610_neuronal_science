@@ -10,6 +10,7 @@ from tqdm import tqdm
 import datetime
 import shutil
 import os
+import csv
 import pathlib
 
 def main():
@@ -41,7 +42,11 @@ def main():
     os.mkdir(directory)
 
     shutil.copy('constants.yaml', directory)
-    print(network.t_spike_record[1])
+    print('Writing spikes record...')
+    with open(os.path.join(directory, 'log.csv'), 'w', newline = '') as file:
+        writer = csv.writer(file)
+        for key, value_list in tqdm(network.t_spike_record.items()):
+            writer.writerow(value_list)
 
     # pass
 
