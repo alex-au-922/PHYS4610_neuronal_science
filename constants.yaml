@@ -1,6 +1,6 @@
 NeuronNetwork:
-  initLowBound: -2
-  initUpBound: 2
+  initLowBound: -1
+  initUpBound: 1
   seed: 10
   maxSpike: 300
   sigma: 3

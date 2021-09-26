@@ -6,8 +6,8 @@ def random_seed(seed: int) -> None:
 def random_vec(numberOfNodes: int, lowBound:float, upBound: float) -> np.ndarray:
     return np.random.random(numberOfNodes)*(upBound - lowBound) + lowBound
 
-def random_gaussian(sigma):
-    return np.random.normal(scale = sigma, size = 1)
+def random_gaussian(sigma, size):
+    return np.random.normal(scale = sigma, size = size)
 
 if __name__ == "__main__":
     print(random_gaussian(1))

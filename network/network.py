@@ -7,6 +7,8 @@ import numba as nb
 from tqdm import tqdm
 import math
 
+np.seterr(all='raise')
+
 class NeuronNetwork:
     def __init__(self, w_matrix):
         self.w_matrix = w_matrix
@@ -31,6 +33,8 @@ class NeuronNetwork:
         self.t_spike = np.array(self.t_spike)
 
         self.t_spike_indices = [0]*(self.N + 1)
+        self.t_spike_record = [[]]*(self.N + 1)
+        self.reset_index = []
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
 
@@ -58,19 +62,14 @@ class NeuronNetwork:
 
         self.mat = np.ones(self.arg['maxSpike'])
 
-        a_exc = self.arg["EXCITED"]["a"]
-        a_inh = self.arg["INHIBIT"]["a"]
-        b_exc = self.arg["EXCITED"]["b"]
-        b_inh = self.arg["INHIBIT"]["b"]
-        c_exc = self.arg["EXCITED"]["c"]
-        c_inh = self.arg["INHIBIT"]["c"]
-        d_exc = self.arg["EXCITED"]["d"]
-        d_inh = self.arg["INHIBIT"]["d"]
-        self.a = [a_exc if (self.node_type_map[n] == 1) else a_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.b = [b_exc if (self.node_type_map[n] == 1) else b_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.c = [c_exc if (self.node_type_map[n] == 1) else c_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
-        self.d = [d_exc if (self.node_type_map[n] == 1) else d_inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ]
+        self.a = self.create_constant_list(self.arg["EXCITED"]["a"], self.arg["INHIBIT"]["a"])
+        self.b = self.create_constant_list(self.arg["EXCITED"]["b"], self.arg["INHIBIT"]["b"])
+        self.c = self.create_constant_list(self.arg["EXCITED"]["c"], self.arg["INHIBIT"]["c"])
+        self.d = self.create_constant_list(self.arg["EXCITED"]["d"], self.arg["INHIBIT"]["d"])
     
+    def create_constant_list(self, exc, inh):
+        return np.array([exc if (self.node_type_map[n] == 1) else inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ])
+
     def check_node_type(self,w_matrix):
         '''Check whether the node type is consistent'''
         for column in w_matrix.T:
@@ -130,36 +129,52 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     
     def v_step(self):
         noise_arr = np.ones_like(self.v_arr) * \
-            utils.functions.random_gaussian(self.arg['sigma'])*np.sqrt(self.arg['dt'])
+            utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
         try:
-            buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
+            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
              + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
-            return buff_v_arr
-        except OverflowError as e:
+        except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{buff_v_arr}\n')
-            return buff_v_arr
+                file.write(f'{self.buff_v_arr = }\n')
+
+            # @nb.njit()
+            def check_overflow():
+                for i in nb.prange(len(self.v_arr)):
+                    try:
+                        self.buff_v_arr[i] = self.v_arr[i] + (self.arg['c1']*self.v_arr[i]**2 + self.arg['c2'] * self.v_arr[i] \
+                            + self.arg['c3'] - self.arg['c4'] * self.u_arr + self.arg['c5'] * self.I_arr[i] + noise_arr) * self.arg['dt']
+                    except Exception:
+                        self.reset_index.append(i)
+
+            check_overflow()
 
     def u_step(self):
         try:
-            buff_u_arr =  self.a * (self.b * self.v_arr - self.u_arr)
-            return  buff_u_arr
-        except OverflowError as e:
+            self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
+        except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{buff_u_arr}\n')
-            return buff_u_arr
+                file.write(f'{self.buff_u_arr = }\n')
+            
+            # @nb.njit()
+            def check_overflow():
+                for i in nb.prange(len(self.u_arr)):
+                    try:
+                        self.buff_u_arr[i] =  self.u_arr[i] + (self.a[i] * (self.b[i] * self.v_arr[i] - self.u_arr[i]))*self.arg['dt']
+                    except Exception:
+                        self.reset_index.append(i)
+            
+            check_overflow()
 
     def I_step(self):
         try:
-            buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
-            return buff_I_arr
-        except OverflowError as e:
+            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+        except Exception as e:
             with open("log.txt", 'a') as file:
-                file.write(f'{e}\new_matrixn')
-                file.write(f'{buff_I_arr}\n')
-            return buff_I_arr
+                file.write(f'{e}\n')
+                file.write(f'{self.buff_I_arr = }\n')
+            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
     #@profile
     def G_exc_step(self):
@@ -186,6 +201,10 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         for index in exceeded_indies:
             length = self.arg['maxSpike']
             # Modify spike time for both excitory and inhibitory
+            #self.exc_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
+            #self.inh_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
+            
+            self.t_spike_record[index].append(self.time // self.arg['dt'])
             self.t_spike_indices[index] += 1
             self.t_spike[index][0] = 1
 
@@ -195,16 +214,23 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
 
         # Calcutaion
-        new_v = self.v_step()
-        new_u = self.u_step()
+        self.v_step()
+        self.u_step()
+
+        if self.reset_index != []:
+            self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
+            self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
+            self.reset_index = []
         
         new_G_exc = self.G_exc_step()
         new_G_inh = self.G_inh_step()
-        new_I = self.I_step()
+
+
+        self.I_step()
         # Replace
-        self.v_arr = new_v
-        self.u_arr = new_u
-        self.I_arr = new_I
+        self.v_arr = self.buff_v_arr
+        self.u_arr = self.buff_u_arr
+        self.I_arr = self.buff_I_arr
         self.G_exc_arr = new_G_exc
         self.G_inh_arr = new_G_inh
 
