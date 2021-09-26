@@ -20,7 +20,10 @@ def main():
         network_constant = yaml.safe_load(stream)["Main"]
     w_matrix = ReadCSV(network_constant['file_path']).values
 
-    os.remove('log.txt')
+    if os.path.exists('log.txt'):
+        os.remove('log.txt')
+    with open('log.txt','w') as file:
+        pass
     
     # 2. Create Neuron Network from weight matrix, u, v
     network = NeuronNetworkTimeSeries(w_matrix)
