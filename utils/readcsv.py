@@ -3,7 +3,7 @@ import numpy as np
 
 # Testing for commit
 
-class ReadCSV:
+class ReadWeightCSV:
     def __init__(self, path):
         print("Initializing the connection matrix...")
         self.connectionMatrix = pd.read_csv(path, sep = '\t', header = None).values
