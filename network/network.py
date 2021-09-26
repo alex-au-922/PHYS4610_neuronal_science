@@ -104,7 +104,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_v_arr}\n')
+                file.write(f'{self.buff_v_arr = }\n')
 
             # @nb.njit()
             def check_overflow():
@@ -123,7 +123,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_u_arr}\n')
+                file.write(f'{self.buff_u_arr = }\n')
             
             # @nb.njit()
             def check_overflow():
@@ -141,7 +141,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_I_arr}\n')
+                file.write(f'{self.buff_I_arr = }\n')
             self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
 
 
@@ -152,7 +152,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauExc'])
             gamma_j = np.matmul(self.exc_t_spike[j_list], self.mat)
             weight = self.w_matrix[:, i][j_list]
-            buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            try:
+                buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            except Exception as e:
+                with open("log.txt", 'a') as file:
+                    file.write(f'{e}\n')
+                    file.write(f'{buff_G_exc = }\n')
+
         return buff_G_exc
 
     def G_inh_step(self):
@@ -161,7 +167,13 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
             gamma_j = np.matmul(self.inh_t_spike[j_list], self.mat)
             weight = np.abs(self.w_matrix[:, i][j_list])
-            buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            try:
+                buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
+            except Exception as e:
+                with open("log.txt", 'a') as file:
+                    file.write(f'{e}\n')
+                    file.write(f'{buff_G_inh = }\n')
+
         return buff_G_inh
 
     def step(self):
