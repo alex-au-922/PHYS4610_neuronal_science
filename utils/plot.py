@@ -39,6 +39,6 @@ class PlotGraph:
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
         fig,ax = plt.subplots()
-        sns.kdeplot(x = index, y = length, ax = ax)
+        sns.kdeplot(x = length, ax = ax)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))
