@@ -5,6 +5,7 @@ import utils.functions
 import numpy as np
 import numba as nb
 from tqdm import tqdm
+import math
 
 class NeuronNetwork:
     def __init__(self, w_matrix):
@@ -28,8 +29,7 @@ class NeuronNetwork:
         # self.t_spike = np.array(self.t_spike)
         self.t_spike = [np.zeros(self.arg['maxSpike']) for _ in range(self.N + 1)]
         self.t_spike = np.array(self.t_spike)
-        self.exc_t_spike = np.array(self.t_spike)
-        self.inh_t_spike = np.array(self.t_spike)
+
         self.t_spike_indices = [0]*(self.N + 1)
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
@@ -43,7 +43,18 @@ class NeuronNetwork:
         self.node_type_map[0] = 0
         self.exc_node_map = {}
         self.inh_node_map = {}
+
+        self.exc_matrix = np.zeros_like(self.w_matrix) # all values are 1, 0
+        self.inh_matrix = np.zeros_like(self.w_matrix) # all values are 1, 0
+
+        self.exc_w_matrix = np.zeros_like(self.w_matrix)
+        self.inh_w_matrix = np.zeros_like(self.w_matrix) # All positive values (absoluted)
+
+        self.weight_map = {}
         self.initialize_from_adj_matrix()
+
+        
+            
 
         self.mat = np.ones(self.arg['maxSpike'])
 
@@ -71,6 +82,7 @@ class NeuronNetwork:
         for i in tqdm(range(1, i_max)):
             for j in range(1, j_max):
                 w_ij = self.w_matrix[i][j]
+                '''
                 if (w_ij > 0):
                     self.node_type_map[j] = 1
                     if i not in self.exc_node_map:
@@ -86,15 +98,35 @@ class NeuronNetwork:
                         self.inh_node_map[i].append(j)
                     continue
                 self.node_type_map[j] = 0
+                '''
+                if (w_ij > 0):
+                    self.node_type_map[j] = 1
+                    self.exc_matrix[i][j] = 1
+                    self.exc_w_matrix[i][j] = w_ij
+                    continue
+                if (w_ij < 0):
+                    self.node_type_map[j] = -1
+                    self.inh_matrix[i][j] = 1
+                    self.inh_w_matrix[i][j] = abs(w_ij)
+                    continue
+                self.node_type_map[j] = 0
+
+        
+        for i, j_list in self.exc_node_map.items():
+            self.weight_map[i] = self.w_matrix[i][j_list]
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
     def __init__(self, w_matrix):
         super().__init__(w_matrix = w_matrix)
         self.time = 0
+        self.current_step = 0
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         self.exc_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauExc'])
         self.inh_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauInh'])
+
+        self.exc_exponentials = [math.exp( -(n * self.arg['dt'])/(self.arg['tauExc']) ) for n in range(self.arg['maxSpike'])]
+        self.inh_exponentials = [math.exp( -(n * self.arg['dt'])/(self.arg['tauInh']) ) for n in range(self.arg['maxSpike'])]
     
     def v_step(self):
         noise_arr = np.ones_like(self.v_arr) * \
@@ -129,41 +161,38 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
                 file.write(f'{buff_I_arr}\n')
             return buff_I_arr
 
-
+    #@profile
     def G_exc_step(self):
-        # Loop for all keys
-        buff_G_exc = np.zeros_like(self.G_exc_arr)
-        for i, j_list in self.exc_node_map.items():
-            # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauExc'])
-            gamma_j = np.matmul(self.exc_t_spike[j_list], self.mat)
-            weight = self.w_matrix[:, i][j_list]
-            buff_G_exc[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-        return buff_G_exc
+        # sum_of_exp: (N+1) x 1 vector, sum_of_exp[j] => Summation part of Neuron j
+        sum_of_exp = np.matmul(  (self.t_spike * self.exc_exponentials), np.ones(self.arg['maxSpike']) )
+        return self.arg['beta'] * np.matmul( self.exc_w_matrix, sum_of_exp )
 
+    #@profile
     def G_inh_step(self):
-        buff_G_inh = np.zeros_like(self.G_inh_arr)
-        for i, j_list in self.inh_node_map.items():
-            # new_matrix = np.exp(-1*np.abs(self.time - self.t_spike[j_list])/self.arg['tauInh'])
-            gamma_j = np.matmul(self.inh_t_spike[j_list], self.mat)
-            weight = np.abs(self.w_matrix[:, i][j_list])
-            buff_G_inh[i] = self.arg['beta']*np.matmul(weight, gamma_j)
-        
-        return buff_G_inh
+        #sum_of_exp: (N+1) x 1 vector, sum_of_exp[j] => Summation part of Neuron j
+        sum_of_exp = np.matmul(  (self.t_spike * self.inh_exponentials), np.ones(self.arg['maxSpike']) )
+        return self.arg['beta'] * np.matmul( self.inh_w_matrix, sum_of_exp )
 
+    @profile
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
+        print(f"u = {self.u_arr[0]}, v = {self.v_arr[0]}")
+
+        # Shift one right for all sliding windows
+        np.roll(self.t_spike, 1, axis=1)
+        self.t_spike[:,0] = 0
+
+
         for index in exceeded_indies:
+            length = self.arg['maxSpike']
             # Modify spike time for both excitory and inhibitory
-            self.exc_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
-            self.inh_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
             self.t_spike_indices[index] += 1
+            self.t_spike[index][0] = 1
+
             # Reset u, v
             self.v_arr[index] = self.c[index]
             self.u_arr[index] += self.d[index]
-        
-        # Exponential decay for every time step 
-        self.exc_t_spike *= self.exc_decay_factor
-        self.inh_t_spike *= self.inh_decay_factor
+
 
         # Calcutaion
         new_v = self.v_step()
@@ -180,6 +209,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.G_inh_arr = new_G_inh
 
         self.time += self.arg["dt"]
+        self.current_step += 1
 
         # print(self.v_arr)
 

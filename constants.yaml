@@ -2,7 +2,7 @@ NeuronNetwork:
   initLowBound: -2
   initUpBound: 2
   seed: 10
-  maxSpike: 20
+  maxSpike: 300
   sigma: 3
   INHIBIT:
     a: 0.1
@@ -28,6 +28,6 @@ NeuronNetworkTimeSeries:
   tauInh: 6
   beta: 2
 Main:
-  totalTime: 7500
+  totalTime: 125
   file_path: "DIV66_BMI0_g.txt"
   dt: 0.125
