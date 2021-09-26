@@ -19,6 +19,8 @@ def main():
     with open('constants.yaml') as stream:
         network_constant = yaml.safe_load(stream)["Main"]
     w_matrix = ReadCSV(network_constant['file_path']).values
+
+    os.remove('log.txt')
     
     # 2. Create Neuron Network from weight matrix, u, v
     network = NeuronNetworkTimeSeries(w_matrix)
@@ -40,6 +42,7 @@ def main():
     
     directory = baseFolder / f'{start}'
     os.mkdir(directory)
+    shutil.move('log.txt', directory)
 
     shutil.copy('constants.yaml', directory)
     print('Writing spikes record...')
