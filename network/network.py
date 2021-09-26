@@ -33,7 +33,7 @@ class NeuronNetwork:
         self.t_spike = np.array(self.t_spike)
 
         self.t_spike_indices = [0]*(self.N + 1)
-        self.t_spike_record = [[]]*(self.N + 1)
+        self.t_spike_record = {key:[] for key in range(self.N + 1)}
         self.reset_index = []
 
         # self.node_map[n].neuron_type == NodeType.EXCITED
@@ -60,7 +60,7 @@ class NeuronNetwork:
         
             
 
-        self.mat = np.ones(self.arg['maxSpike'])
+        self.one_vec = np.ones(self.arg['maxSpike'])
 
         self.a = self.create_constant_list(self.arg["EXCITED"]["a"], self.arg["INHIBIT"]["a"])
         self.b = self.create_constant_list(self.arg["EXCITED"]["b"], self.arg["INHIBIT"]["b"])
@@ -179,19 +179,19 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
     #@profile
     def G_exc_step(self):
         # sum_of_exp: (N+1) x 1 vector, sum_of_exp[j] => Summation part of Neuron j
-        sum_of_exp = np.matmul(  (self.t_spike * self.exc_exponentials), np.ones(self.arg['maxSpike']) )
+        sum_of_exp = np.matmul(  (self.t_spike * self.exc_exponentials), self.one_vec )
         return self.arg['beta'] * np.matmul( self.exc_w_matrix, sum_of_exp )
 
     #@profile
     def G_inh_step(self):
         #sum_of_exp: (N+1) x 1 vector, sum_of_exp[j] => Summation part of Neuron j
-        sum_of_exp = np.matmul(  (self.t_spike * self.inh_exponentials), np.ones(self.arg['maxSpike']) )
+        sum_of_exp = np.matmul(  (self.t_spike * self.inh_exponentials), self.one_vec )
         return self.arg['beta'] * np.matmul( self.inh_w_matrix, sum_of_exp )
 
-    @profile
+    # @profile
     def step(self):
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
-        print(f"u = {self.u_arr[0]}, v = {self.v_arr[0]}")
+        # print(f"u = {self.u_arr[0]}, v = {self.v_arr[0]}")
 
         # Shift one right for all sliding windows
         np.roll(self.t_spike, 1, axis=1)
@@ -199,12 +199,12 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
 
         for index in exceeded_indies:
-            length = self.arg['maxSpike']
+            # length = self.arg['maxSpike']
             # Modify spike time for both excitory and inhibitory
             #self.exc_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
             #self.inh_t_spike[index][self.t_spike_indices[index] % self.arg['maxSpike']] = 1
             
-            self.t_spike_record[index].append(self.time // self.arg['dt'])
+            self.t_spike_record[index].append(self.current_step)
             self.t_spike_indices[index] += 1
             self.t_spike[index][0] = 1
 

@@ -28,6 +28,6 @@ NeuronNetworkTimeSeries:
   tauInh: 6
   beta: 2
 Main:
-  totalTime: 7500
+  totalTime: 125
   file_path: "DIV66_BMI0_g.txt"
   dt: 0.125
