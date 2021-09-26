@@ -26,7 +26,7 @@ class PlotGraph:
 
     def write_csv(self, data: List, filepath: str):
         with open(filepath, 'w', newline = '') as file:
-            writer = csv.write(file)
+            writer = csv.writer(file)
             writer.writerows(data)
     
     def firing_frequency_probability_distribution(self):
