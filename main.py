@@ -59,7 +59,7 @@ def main():
 def test():
     with open('constants.yaml') as stream:
         network_constant = yaml.safe_load(stream)["Main"]
-    w_matrix = ReadCSV(network_constant['file_path']).values
+    w_matrix = ReadWeightCSV(network_constant['file_path']).values
     print(w_matrix)
     network = NeuronNetworkTimeSeries(w_matrix)
     print(network.exc_node_map)
