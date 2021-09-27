@@ -2,3 +2,7 @@ numpy
 pandas
 pyyaml
 tqdm
+seaborn
+scipy
+numba
+

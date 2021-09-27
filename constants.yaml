@@ -1,6 +1,8 @@
 NeuronNetwork:
-  initLowBound: -1
-  initUpBound: 1
+  VinitLowBound: -75
+  VinitUpBound: 15
+  UinitLowBound: 0
+  UinitUpBound: 16
   seed: 10
   maxSpike: 300
   sigma: 3
@@ -30,4 +32,7 @@ NeuronNetworkTimeSeries:
 Main:
   totalTime: 7500
   file_path: "DIV66_BMI0_g.txt"
+  dt: 0.125
+Plot:
+  totalTime: 7500
   dt: 0.125

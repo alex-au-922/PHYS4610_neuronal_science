@@ -130,3 +130,7 @@ dmypy.json
 .pyre/
 
 result/*
+
+# Flask files for slackbot
+flask_*.py
+flask_*.yaml

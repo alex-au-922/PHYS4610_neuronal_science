@@ -5,6 +5,7 @@ import utils.functions
 import numpy as np
 import numba as nb
 from tqdm import tqdm
+import csv
 import math
 
 np.seterr(all='raise')
@@ -12,15 +13,19 @@ np.seterr(all='raise')
 class NeuronNetwork:
     def __init__(self, w_matrix):
         self.w_matrix = w_matrix
+        with open('weight.csv', 'w') as file:
+            writer = csv.writer(file)
+            writer.writerows(self.w_matrix)
         self.N = len(w_matrix) - 1
+        self.index = 134
         self.arg = {}
         with open('constants.yaml') as stream:
             self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
         
         utils.functions.random_seed(self.arg['seed'])
         self.I_arr = np.zeros(self.N + 1)
-        self.u_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
-        self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['initLowBound'], self.arg['initUpBound'])
+        self.u_arr = utils.functions.random_vec(self.N + 1, self.arg['VinitLowBound'], self.arg['VinitUpBound'])
+        self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['UinitLowBound'], self.arg['UinitUpBound'])
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
         # self.t_spike = [None]*(self.N + 1)
@@ -131,8 +136,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         noise_arr = np.ones_like(self.v_arr) * \
             utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
         try:
-            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr \
-             + self.arg['c3'] - self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr+ noise_arr)*self.arg['dt'] 
+            self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr 
+             + self.arg['c3'] + self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr)*self.arg['dt'] + noise_arr
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
@@ -140,10 +145,10 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
             # @nb.njit()
             def check_overflow():
-                for i in nb.prange(len(self.v_arr)):
+                for i in range(len(self.v_arr)):
                     try:
                         self.buff_v_arr[i] = self.v_arr[i] + (self.arg['c1']*self.v_arr[i]**2 + self.arg['c2'] * self.v_arr[i] \
-                            + self.arg['c3'] - self.arg['c4'] * self.u_arr + self.arg['c5'] * self.I_arr[i] + noise_arr) * self.arg['dt']
+                            + self.arg['c3'] + self.arg['c4'] * self.u_arr + self.arg['c5'] * self.I_arr[i]) * self.arg['dt']+ noise_arr[i]
                     except Exception:
                         self.reset_index.append(i)
 
@@ -159,13 +164,14 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             
             # @nb.njit()
             def check_overflow():
-                for i in nb.prange(len(self.u_arr)):
+                for i in range(len(self.u_arr)):
                     try:
                         self.buff_u_arr[i] =  self.u_arr[i] + (self.a[i] * (self.b[i] * self.v_arr[i] - self.u_arr[i]))*self.arg['dt']
                     except Exception:
                         self.reset_index.append(i)
             
             check_overflow()
+        #self.buff_u_arr =  np.clip(self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt'], -1e5, 1e5, self.b*self.v_arr)
 
     def I_step(self):
         try:
@@ -174,7 +180,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
                 file.write(f'{self.buff_I_arr = }\n')
-            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+            self.buff_I_arr = self.arg['beta']*(self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI'])))
 
     #@profile
     def G_exc_step(self):
@@ -219,7 +225,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
         if self.reset_index != []:
             self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
-            self.buff_u_arr[self.reset_index] = self.c[self.reset_index]
+            self.buff_u_arr[self.reset_index] = (self.b*self.v_arr)[self.reset_index]
             self.reset_index = []
         
         new_G_exc = self.G_exc_step()
@@ -233,6 +239,8 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.I_arr = self.buff_I_arr
         self.G_exc_arr = new_G_exc
         self.G_inh_arr = new_G_inh
+        with open('index.csv', 'a') as file:
+            file.write(f'{self.v_arr[self.index]},{self.u_arr[self.index]},{self.I_arr[self.index]},{self.G_exc_arr[self.index]},{self.G_inh_arr[self.index]}\n')
 
         self.time += self.arg["dt"]
         self.current_step += 1
