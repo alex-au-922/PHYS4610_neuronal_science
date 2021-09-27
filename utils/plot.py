@@ -12,6 +12,9 @@ import numba as nb
 class PlotGraph:
     def __init__(self, pathname, filename):
         self.pathname = pathname
+        self.t_arr = []
+        self.n_arr = []
+
         print('Reading data...')
         with open(os.path.join(pathname, filename), 'r') as file:
             self.data = []
@@ -20,7 +23,12 @@ class PlotGraph:
                 buff_row = []
                 for value in row:
                     buff_row.append(int(value))
+                    if key != 0:
+                        self.t_arr.append(int(value) * 0.000125)
+                        self.n_arr.append(key)
                 self.data.append(buff_row)
+            self.t_arr = np.array(self.t_arr)
+            self.n_arr = np.array(self.n_arr)
         with open('constants.yaml') as stream:
             self.arg = yaml.safe_load(stream)['Plot']
         self.plot_graphs()
@@ -28,6 +36,7 @@ class PlotGraph:
     def plot_graphs(self):
         self.firing_frequency_probability_distribution()
         self.log_spike_interval()
+        self.spike_raster_plot()
         
 
     def write_csv(self, data: List, filepath: str):
@@ -80,6 +89,12 @@ class PlotGraph:
         ax.set(xlabel = "ISI (s)", ylabel = "Probability Density")
         ax.set_xscale('log')
         fig.savefig(os.path.join(self.pathname, 'log_spike_interval.jpg'))
+
+    def spike_raster_plot(self):
+        fig,ax = plt.subplots()
+        plt.plot(self.t_arr, self.n_arr, '.', markersize=1)
+        fig.savefig(os.path.join(self.pathname, 'spike_raster_plot.jpg'))
+
 
         
 
