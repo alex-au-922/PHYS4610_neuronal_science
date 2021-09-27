@@ -73,7 +73,7 @@ class NeuronNetwork:
         self.d = self.create_constant_list(self.arg["EXCITED"]["d"], self.arg["INHIBIT"]["d"])
     
     def create_constant_list(self, exc, inh):
-        return np.array([exc if (self.node_type_map[n] == 1) else inh if (self.node_type_map[n] == -1) else 0 for n in range(self.N + 1) ])
+        return np.array([inh if (self.node_type_map[n] == -1) else exc for n in range(self.N + 1) ])
 
     def check_node_type(self,w_matrix):
         '''Check whether the node type is consistent'''
@@ -239,9 +239,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.I_arr = self.buff_I_arr
         self.G_exc_arr = new_G_exc
         self.G_inh_arr = new_G_inh
-        with open('index.csv', 'a') as file:
-            file.write(f'{self.v_arr[self.index]},{self.u_arr[self.index]},{self.I_arr[self.index]},{self.G_exc_arr[self.index]},{self.G_inh_arr[self.index]}\n')
-
+       
         self.time += self.arg["dt"]
         self.current_step += 1
 
