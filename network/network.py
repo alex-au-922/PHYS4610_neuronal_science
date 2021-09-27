@@ -200,7 +200,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # print(f"u = {self.u_arr[0]}, v = {self.v_arr[0]}")
 
         # Shift one right for all sliding windows
-        np.roll(self.t_spike, 1, axis=1)
+        self.t_spike = np.roll(self.t_spike, 1, axis=1)
         self.t_spike[:,0] = 0
 
 
