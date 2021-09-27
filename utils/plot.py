@@ -53,8 +53,14 @@ class PlotGraph:
             length.append(len(row) / self.arg['totalTime'])
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
+        length = np.array(length)
+        density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), 100), density = True)
+        norm_density = density / density.sum()
+
         fig,ax = plt.subplots()
-        sns.kdeplot(x = length, ax = ax)
+        ax.plot(x_value[:-1], norm_density)
+        ax.set_xlim(0, None)
+        ax.set_ylim(0, None)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))
     
@@ -80,19 +86,24 @@ class PlotGraph:
         print('Calculating the spike intervals...')
 
         index, interval = self.calculate_interval()
-        # self.write_csv(zip(index, interval), os.path.join(self.pathname, 'log_spike_interval.csv'))
+        self.write_csv(zip(index, interval), os.path.join(self.pathname, 'log_spike_interval.csv'))
 
-        interval = np.array(interval, dtype = np.float64)
+        interval = np.log10(np.array(interval, dtype = np.float64)*self.arg['dt'] / 1000)
+        density, x_value = np.histogram(interval, bins = np.linspace((np.min(interval)), np.max(interval), 80), density = True)
+        norm_density = density / density.sum()
+        x_value = np.power(10,x_value)
 
         fig,ax = plt.subplots()
-        sns.kdeplot(x = interval*self.arg['dt'] / 1000, ax = ax)
+        ax.semilogx(x_value[:-1],norm_density)
         ax.set(xlabel = "ISI (s)", ylabel = "Probability Density")
-        ax.set_xscale('log')
         fig.savefig(os.path.join(self.pathname, 'log_spike_interval.jpg'))
 
     def spike_raster_plot(self):
         fig,ax = plt.subplots()
-        plt.plot(self.t_arr, self.n_arr, '.', markersize=1)
+        ax.plot(self.t_arr, self.n_arr, '.', markersize=1)
+        ax.set(xlabel = 'Time (s)', ylabel = 'Neuron Index')
+        ax.set_xlim(0, None)
+        ax.set_ylim(0, None)
         fig.savefig(os.path.join(self.pathname, 'spike_raster_plot.jpg'))
 
 

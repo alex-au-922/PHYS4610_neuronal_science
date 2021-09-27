@@ -12,6 +12,7 @@ import shutil
 import os
 import csv
 import pathlib
+from utils.plot import PlotGraph
 
 def main():
     # 1. Load weight matrix from file
@@ -53,6 +54,8 @@ def main():
         writer = csv.writer(file)
         for key, value_list in tqdm(network.t_spike_record.items()):
             writer.writerow(value_list)
+    
+    graph = PlotGraph(directory, 'log.csv')
 
     # pass
 
