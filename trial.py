@@ -1,8 +1,10 @@
-from utils.plot import PlotGraph
-import pathlib
+import numpy as np
+import matplotlib.pyplot as plt
 
-def main():
-    directory = pathlib.Path('./result/2021-09-27 22:52:01.068981/')
-    graph = PlotGraph(directory, 'log.csv')
-if __name__ == "__main__":
-    main()
+a = np.random.normal(loc= 0, scale = 3, size = 10000000)
+start_val = -5
+end_val = 5
+density, x_val = np.histogram(a, bins = np.linspace(start_val, end_val, 100), density= True)
+fig, ax = plt.subplots()
+ax.plot(x_val[:-1], density)
+plt.show()

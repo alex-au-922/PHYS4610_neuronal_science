@@ -55,10 +55,10 @@ class PlotGraph:
 
         length = np.array(length)
         density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), 100), density = True)
-        norm_density = density / density.sum()
+        x_value = (x_value[1:] + x_value[:-1])/2
 
         fig,ax = plt.subplots()
-        ax.plot(x_value[:-1], norm_density)
+        ax.plot(x_value, density)
         ax.set_xlim(0, None)
         ax.set_ylim(0, None)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
@@ -90,11 +90,11 @@ class PlotGraph:
 
         interval = np.log10(np.array(interval, dtype = np.float64)*self.arg['dt'] / 1000)
         density, x_value = np.histogram(interval, bins = np.linspace((np.min(interval)), np.max(interval), 80), density = True)
-        norm_density = density / density.sum()
         x_value = np.power(10,x_value)
+        x_value = (x_value[1:] + x_value[:-1])/2
 
         fig,ax = plt.subplots()
-        ax.semilogx(x_value[:-1],norm_density)
+        ax.semilogx(x_value,density)
         ax.set(xlabel = "ISI (s)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'log_spike_interval.jpg'))
 
