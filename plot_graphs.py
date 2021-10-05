@@ -22,6 +22,8 @@ if __name__ =="__main__":
         directory = basePath / fileDict[max_time]
     else:
         directory = pathlib.Path(args.dir)
+    
+    print(directory)
 
     try:
         graph = PlotGraph(directory, 'log.csv')
