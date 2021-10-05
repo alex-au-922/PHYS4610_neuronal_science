@@ -10,12 +10,16 @@ from tqdm import tqdm
 import numba as nb
 
 class PlotGraph:
-    def __init__(self, pathname, filename):
+    def __init__(self, pathname, filename, firing_bin = 100, isi_bin = 80):
         self.pathname = pathname
+        self.firing_bin = firing_bin
+        self.isi_bin = isi_bin
         self.t_arr = []
         self.n_arr = []
 
         print('Reading data...')
+        with open('constants.yaml') as stream:
+            self.arg = yaml.safe_load(stream)['Plot']
         with open(os.path.join(pathname, filename), 'r') as file:
             self.data = []
             reader = csv.reader(file)
@@ -24,13 +28,11 @@ class PlotGraph:
                 for value in row:
                     buff_row.append(int(value))
                     if key != 0:
-                        self.t_arr.append(int(value) * 0.000125)
+                        self.t_arr.append(int(value) * self.arg['dt'] / 1000)
                         self.n_arr.append(key)
                 self.data.append(buff_row)
             self.t_arr = np.array(self.t_arr)
             self.n_arr = np.array(self.n_arr)
-        with open('constants.yaml') as stream:
-            self.arg = yaml.safe_load(stream)['Plot']
         self.plot_graphs()
     
     def plot_graphs(self):
@@ -54,7 +56,7 @@ class PlotGraph:
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
         length = np.array(length)
-        density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), 100), density = True)
+        density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
         x_value = (x_value[1:] + x_value[:-1])/2
 
         fig,ax = plt.subplots()
@@ -82,14 +84,14 @@ class PlotGraph:
                 interval.extend(buff_row)
         return index, interval
     
-    def log_spike_interval(self):
+    def log_spike_interval(self, bin = 80):
         print('Calculating the spike intervals...')
 
         index, interval = self.calculate_interval()
         self.write_csv(zip(index, interval), os.path.join(self.pathname, 'log_spike_interval.csv'))
 
         interval = np.log10(np.array(interval, dtype = np.float64)*self.arg['dt'] / 1000)
-        density, x_value = np.histogram(interval, bins = np.linspace((np.min(interval)), np.max(interval), 80), density = True)
+        density, x_value = np.histogram(interval, bins = np.linspace((np.min(interval)), np.max(interval), self.isi_bin), density = True)
         x_value = np.power(10,x_value)
         x_value = (x_value[1:] + x_value[:-1])/2
 
