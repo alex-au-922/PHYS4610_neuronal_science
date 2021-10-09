@@ -3,7 +3,9 @@ import yaml
 
 from network.network import NeuronNetworkTimeSeries, NeuronNetwork
 from network.network import NeuronNetwork, NeuronNetworkTimeSeries
-import utils
+from PyQt5.QtWidgets import * 
+from PyQt5.QtCore import * 
+from PyQt5.QtGui import * 
 import numpy as np
 import numba as nb
 from tqdm import tqdm
@@ -13,6 +15,14 @@ import os
 import csv
 import pathlib
 from utils.plot import PlotGraph
+
+class WorkerSignal(QObject):
+    progress = pyqtSignal(int)
+    finished = pyqtSignal()
+
+class Main(QRunnable):
+    def __init__(self, args):
+
 
 def main():
     # 1. Load weight matrix from file

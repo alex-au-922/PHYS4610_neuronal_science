@@ -31,7 +31,7 @@ NeuronNetworkTimeSeries:
   beta: 2
 Main:
   totalTime: 7500
-  file_path: "DIV66_BMI0_g.txt"
+  file_path: "./data/DIV66_BMI0_g.txt"
   dt: 0.125
 Plot:
   totalTime: 7500

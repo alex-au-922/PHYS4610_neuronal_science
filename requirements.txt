@@ -5,4 +5,4 @@ tqdm
 seaborn
 scipy
 numba
-
+PyQt5
