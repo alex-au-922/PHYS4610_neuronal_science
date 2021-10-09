@@ -1,38 +1,38 @@
+Main:
+  dt: 0.125
+  file_path: DIV66_BMI0_g.txt
+  totalTime: 7500
 NeuronNetwork:
-  VinitLowBound: -75
-  VinitUpBound: 15
-  UinitLowBound: 0
-  UinitUpBound: 16
-  seed: 10
-  maxSpike: 300
-  sigma: 3
-  INHIBIT:
-    a: 0.1
-    b: 0.2
-    c: -65.0
-    d: 2
   EXCITED:
     a: 0.02
     b: 0.2
     c: -65.0
     d: 8
+  INHIBIT:
+    a: 0.1
+    b: 0.2
+    c: -65.0
+    d: 2
+  UinitLowBound: 0
+  UinitUpBound: 16
+  VinitLowBound: -75
+  VinitUpBound: 15
+  maxSpike: 1000
+  seed: 20
+  sigma: 3
 NeuronNetworkTimeSeries:
-  max_v: 30
-  dt: 0.125
+  beta: 2
   c1: 0.04
   c2: 5
   c3: 140
   c4: -1
   c5: 1
-  ve: 0
-  vI: -80
+  dt: 0.125
+  max_v: 30
   tauExc: 5
   tauInh: 6
-  beta: 2
-Main:
-  totalTime: 7500
-  file_path: "DIV66_BMI0_g.txt"
-  dt: 0.125
+  vI: -80
+  ve: 0
 Plot:
-  totalTime: 7500
   dt: 0.125
+  totalTime: 7500

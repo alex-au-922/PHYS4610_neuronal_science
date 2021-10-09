@@ -10,7 +10,7 @@ from tqdm import tqdm
 import numba as nb
 
 class PlotGraph:
-    def __init__(self, pathname, filename, firing_bin = 100, isi_bin = 80):
+    def __init__(self, pathname, filename, firing_bin = 40, isi_bin = 40):
         self.pathname = pathname
         self.firing_bin = firing_bin
         self.isi_bin = isi_bin
@@ -52,16 +52,16 @@ class PlotGraph:
         length = []
         for i,row in enumerate(self.data):
             index.append(i)
-            length.append(len(row) / self.arg['totalTime'])
+            length.append(len(row)*1000 / self.arg['totalTime'])
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
         length = np.array(length)
-        density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
-        x_value = (x_value[1:] + x_value[:-1])/2
+        density, x_value = np.histogram(length, bins = np.linspace(0, 15, self.firing_bin), density = True)
+        # x_value = (x_value[1:] + x_value[:-1])/2
 
         fig,ax = plt.subplots()
-        ax.plot(x_value, density)
-        ax.set_xlim(0, None)
+        ax.plot(x_value[:-1], density)
+        ax.set_xlim(0, 10)
         ax.set_ylim(0, None)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))
