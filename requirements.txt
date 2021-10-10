@@ -4,5 +4,10 @@ pyyaml
 tqdm
 seaborn
 scipy
+<<<<<<< Updated upstream
 numba
 
+=======
+PyQt5
+plyer
+>>>>>>> Stashed changes
