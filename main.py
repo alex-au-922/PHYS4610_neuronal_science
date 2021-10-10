@@ -48,7 +48,7 @@ class MainExecution(QThread):
 
     def initConstants(self):
         w_matrix = ReadWeightCSV(self.network_constant['file_path']).values
-        self.network = NeuronNetworkTimeSeries(w_matrix)
+        self.network = NeuronNetworkTimeSeries(w_matrix, self.filepath)
         
     
     def run(self):
@@ -112,7 +112,7 @@ def main():
         pass
     
     # 2. Create Neuron Network from weight matrix, u, v
-    network = NeuronNetworkTimeSeries(w_matrix)
+    network = NeuronNetworkTimeSeries(w_matrix, filepath)
     dt, totalTime = network_constant['dt'], network_constant['totalTime']
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(totalTime / dt)
@@ -131,7 +131,7 @@ def main():
     os.mkdir(directory)
     shutil.move('log.txt', directory)
 
-    shutil.copy(filepath, directory / 'constants.yaml')
+    shutil.copy(filepath, directory / 'result_constants.yaml')
     print('Writing spikes record...')
     with open(os.path.join(directory, 'log.csv'), 'w', newline = '') as file:
         writer = csv.writer(file)

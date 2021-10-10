@@ -4,7 +4,7 @@ NeuronNetwork:
   UinitLowBound: 0
   UinitUpBound: 16
   seed: 10
-  maxSpike: 300
+  maxSpike: 1000
   sigma: 3
   INHIBIT:
     a: 0.1

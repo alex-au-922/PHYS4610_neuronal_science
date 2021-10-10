@@ -134,3 +134,8 @@ result/*
 # Flask files for slackbot
 flask_*.py
 flask_*.yaml
+
+# run dependent data
+log.txt
+run.sh
+2*.yaml

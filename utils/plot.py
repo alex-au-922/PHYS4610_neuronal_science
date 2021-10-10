@@ -10,7 +10,7 @@ from tqdm import tqdm
 import numba as nb
 
 class PlotGraph:
-    def __init__(self, pathname, filename, firing_bin = 100, isi_bin = 80):
+    def __init__(self, pathname, filename, firing_bin = 40, isi_bin = 40):
         self.pathname = pathname
         self.firing_bin = firing_bin
         self.isi_bin = isi_bin
@@ -18,7 +18,7 @@ class PlotGraph:
         self.n_arr = []
 
         print('Reading data...')
-        with open('constants.yaml') as stream:
+        with open(os.path.join(pathname,'result_constants.yaml')) as stream:
             self.arg = yaml.safe_load(stream)['Plot']
         with open(os.path.join(pathname, filename), 'r') as file:
             self.data = []
@@ -27,8 +27,8 @@ class PlotGraph:
                 buff_row = []
                 for value in row:
                     buff_row.append(int(value))
-                    if key != 0:
-                        self.t_arr.append(int(value) * self.arg['dt'] / 1000)
+                    if key != 0: # Not the first node
+                        self.t_arr.append(int(value) * self.arg['dt'] / 1000) # Get the absolute time
                         self.n_arr.append(key)
                 self.data.append(buff_row)
             self.t_arr = np.array(self.t_arr)
@@ -52,16 +52,16 @@ class PlotGraph:
         length = []
         for i,row in enumerate(self.data):
             index.append(i)
-            length.append(len(row) / self.arg['totalTime'])
+            length.append(len(row) / (self.arg['totalTime'] / 1000) )
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
         length = np.array(length)
         density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
-        x_value = (x_value[1:] + x_value[:-1])/2
+        x_value = x_value[:-1]
 
         fig,ax = plt.subplots()
         ax.plot(x_value, density)
-        ax.set_xlim(0, None)
+        ax.set_xlim(0, 10)
         ax.set_ylim(0, None)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))
@@ -74,6 +74,7 @@ class PlotGraph:
             if len(row) == 0:
                 continue
             elif len(row) == 1:
+                # interval.append(int(self.arg['totalTime'] / self.arg['dt']) - row[0])
                 interval.append(int(self.arg['totalTime'] / self.arg['dt']) - row[0])
             else:
                 buff_row = [0] * (len(row) - 1)
@@ -84,7 +85,7 @@ class PlotGraph:
                 interval.extend(buff_row)
         return index, interval
     
-    def log_spike_interval(self, bin = 80):
+    def log_spike_interval(self):
         print('Calculating the spike intervals...')
 
         index, interval = self.calculate_interval()
