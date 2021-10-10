@@ -134,3 +134,6 @@ result/*
 # Flask files for slackbot
 flask_*.py
 flask_*.yaml
+2*.yaml
+*results
+log.txt

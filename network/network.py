@@ -11,7 +11,7 @@ import math
 np.seterr(all='raise')
 
 class NeuronNetwork:
-    def __init__(self, w_matrix):
+    def __init__(self, w_matrix, filePath):
         self.w_matrix = w_matrix
         with open('weight.csv', 'w') as file:
             writer = csv.writer(file)
@@ -19,7 +19,7 @@ class NeuronNetwork:
         self.N = len(w_matrix) - 1
         self.index = 134
         self.arg = {}
-        with open('constants.yaml') as stream:
+        with open(filePath) as stream:
             self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
         
         utils.functions.random_seed(self.arg['seed'])
@@ -120,11 +120,11 @@ class NeuronNetwork:
             self.weight_map[i] = self.w_matrix[i][j_list]
                     
 class NeuronNetworkTimeSeries(NeuronNetwork):
-    def __init__(self, w_matrix):
-        super().__init__(w_matrix = w_matrix)
+    def __init__(self, w_matrix, filePath):
+        super().__init__(w_matrix = w_matrix, filePath = filePath)
         self.time = 0
         self.current_step = 0
-        with open('constants.yaml') as stream:
+        with open(filePath) as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         self.exc_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauExc'])
         self.inh_decay_factor = np.exp(-1*self.arg['dt'] / self.arg['tauInh'])

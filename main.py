@@ -45,7 +45,7 @@ def main():
         pass
     
     # 2. Create Neuron Network from weight matrix, u, v
-    network = NeuronNetworkTimeSeries(w_matrix)
+    network = NeuronNetworkTimeSeries(w_matrix, filepath)
     dt, totalTime = network_constant['dt'], network_constant['totalTime']
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(totalTime / dt)
@@ -71,7 +71,7 @@ def main():
         for key, value_list in tqdm(network.t_spike_record.items()):
             writer.writerow(value_list)
     
-    graph = PlotGraph(directory, 'log.csv')
+    graph = PlotGraph(directory, 'log.csv', )
 
     # pass
 
