@@ -141,7 +141,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_v_arr = }\n')
+                file.write(f'{self.buff_v_arr}\n')
 
             # @nb.njit()
             def check_overflow():
@@ -160,7 +160,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_u_arr = }\n')
+                file.write(f'{self.buff_u_arr}\n')
             
             # @nb.njit()
             def check_overflow():
@@ -179,7 +179,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         except Exception as e:
             with open("log.txt", 'a') as file:
                 file.write(f'{e}\n')
-                file.write(f'{self.buff_I_arr = }\n')
+                file.write(f'{self.buff_I_arr}\n')
             self.buff_I_arr = self.arg['beta']*(self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI'])))
 
     #@profile
