@@ -4,6 +4,8 @@ from PyQt5.QtGui import *
 from view.demgraph import GraphWidget
 from view.widgets import UtilWidget
 from view.menu import MenuWidget
+from view.runBtnPanel import RunBtnControlWindow
+from view.plotBtnPanel import PlotBtnControlWindow
 from gui_utils.guiComponents import QVSeperationLine
 
 class MainWindow(QMainWindow):
@@ -11,10 +13,12 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.graphWidgets = GraphWidget(self)
         self.utilWidgets = UtilWidget(self)
-        self.menuBarWidgets = MenuWidget()
+        self.menuBarWidgets = MenuWidget(self)
+        self.runBtnPanel = RunBtnControlWindow(self)
+        self.plotBtnPanel = PlotBtnControlWindow(self)
         
         self.setWindowTitle("Izhikevich Model Run")
-        self.resize(500,500)
+        self.resize(1280,720)
 
         self.setUpUI()
     def setUpUI(self):
@@ -25,10 +29,10 @@ class MainWindow(QMainWindow):
     
     def setUpLayout(self):
         mainLayout = QHBoxLayout()
-        mainLayout.addWidget(self.graphWidgets)
+        mainLayout.addWidget(self.graphWidgets,2)
         vSeparateLine = QVSeperationLine()
         mainLayout.addWidget(vSeparateLine)
-        mainLayout.addLayout(self.utilWidgets.layout)
+        mainLayout.addLayout(self.utilWidgets.layout,1)
         return mainLayout
     
     

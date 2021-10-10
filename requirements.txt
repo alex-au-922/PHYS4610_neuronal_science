@@ -6,3 +6,4 @@ seaborn
 scipy
 numba
 PyQt5
+plyer

@@ -8,6 +8,7 @@ from gui_utils.guiComponents import QHSeperationLine
 class UtilWidget(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.tableModel = None
         self.layout = self.setUpUtilUI()
     
     def setUpUtilUI(self):
@@ -18,13 +19,7 @@ class UtilWidget(QWidget):
         btnLayout.addWidget(self.trainBtn)
         btnLayout.addWidget(self.plotBtn)
 
-        folderLayout = QHBoxLayout()
-        folderLayout.addWidget(self.folderLabel)
-        folderLayout.addWidget(self.folderLineEdit)
-        folderLayout.addWidget(self.folderBtn)
-
         layout.addLayout(btnLayout)
-        layout.addLayout(folderLayout)
         hLine = QHSeperationLine()
         layout.addWidget(hLine)
         layout.addWidget(self.paramList)
@@ -33,9 +28,6 @@ class UtilWidget(QWidget):
     def setUpWidgets(self):
         self.setUpTrainButton()
         self.setUpPlotButton()
-        self.setUpFolderLabel()
-        self.setUpFolderLineEdit()
-        self.setUpFolderButton()
         self.setUpParamList()
     
     def setUpTrainButton(self):
@@ -43,31 +35,26 @@ class UtilWidget(QWidget):
     
     def setUpPlotButton(self):
         self.plotBtn = QPushButton("Plot", self.parent())   
-    
-    def setUpFolderLabel(self):
-        self.folderLabel = QLabel("Folder:", self.parent())
 
-    def setUpFolderLineEdit(self):
-        self.folderLineEdit = QLineEdit(self.parent())
-        self.folderLineEdit.setText(os.getcwd())
-    
-    def setUpFolderButton(self):
-        self.folderBtn = QPushButton(self.parent())
-        self.folderBtn.setIcon(QIcon('./gui_utils/folderSearch.png'))
-
-    def setUpParamList(self):
+    def setUpParamList(self, fileName = None):
         self.paramList = QTableView()
+        self.refreshTable()           
+        self.paramList.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        def createModel():
-            tableModel = QStandardItemModel()
-            tableModel.setHorizontalHeaderLabels(['Parameter', 'Value'])
-            args = readConstants()
+    def createModel(self,  fileName):
+        tableModel = QStandardItemModel()
+        tableModel.setHorizontalHeaderLabels(['Parameter', 'Value'])
+        if fileName is not None:
+            args = readConstants(fileName)
             for i, dictionary in enumerate(args.items()):
                 for j, value in enumerate(dictionary):
                     item = QStandardItem(str(value))
                     tableModel.setItem(i, j, item)
-            return tableModel 
-
-        self.tableModel = createModel()
-        self.paramList.setModel(self.tableModel)            
-        self.paramList.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        return tableModel 
+    
+    def refreshTable(self, fileName = None):
+        if self.tableModel is not None:
+            self.tableModel.clear()
+        self.tableModel = self.createModel(fileName)
+        self.paramList.setModel(self.tableModel)
+    

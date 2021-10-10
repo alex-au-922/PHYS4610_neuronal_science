@@ -1,7 +1,6 @@
 import yaml
 
-def readConstants():
-    fileName = 'constants.yaml'
+def readConstants(fileName = 'constants.yaml'):
     with open(fileName) as stream:
         args = yaml.safe_load(stream)
     args = removeDuplicateConstants(args)
