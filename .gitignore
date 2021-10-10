@@ -140,3 +140,4 @@ log.txt
 run.sh
 2*.yaml
 cached_result/*
+metric/*.csv

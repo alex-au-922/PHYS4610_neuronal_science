@@ -56,7 +56,8 @@ class PlotGraph:
         self.write_csv(zip(index, length), os.path.join(self.pathname, 'firing_rate.csv'))
 
         length = np.array(length)
-        density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
+        # density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
+        density, x_value = np.histogram(length, bins = np.linspace(0, 12, self.firing_bin), density = True)
         x_value = x_value[:-1]
 
         fig,ax = plt.subplots()
@@ -98,11 +99,12 @@ class PlotGraph:
 
         fig,ax = plt.subplots()
         ax.semilogx(x_value,density)
+        ax.set_xlim(1e-4, 1e2)
         ax.set(xlabel = "ISI (s)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'log_spike_interval.jpg'))
 
     def spike_raster_plot(self):
-        fig,ax = plt.subplots()
+        fig,ax = plt.subplots(figsize = (20,10))
         ax.plot(self.t_arr, self.n_arr, '.', markersize=1)
         ax.set(xlabel = 'Time (s)', ylabel = 'Neuron Index')
         ax.set_xlim(0, None)

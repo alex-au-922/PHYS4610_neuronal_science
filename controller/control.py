@@ -98,28 +98,29 @@ class Controller:
             self.view.graphWidgets.searchGraphBtnList.append([initialTab, False, None])
             self.view.graphWidgets.tabWidget.insertTab(index, initialTab, "Blank") 
             self.view.graphWidgets.tabWidget.setCurrentIndex(index)
+            print(self.view.graphWidgets.searchGraphBtnList, index)
             self.view.utilWidgets.refreshTable()
         else:
             if not self.view.graphWidgets.searchGraphBtnList[index][1]:
                 self.view.utilWidgets.refreshTable()
             else:
                 self.view.utilWidgets.refreshTable(os.path.join(self.view.graphWidgets.searchGraphBtnList[index][2], 'result_constants.yaml'))
-
     
     def closeTabWidget(self,index):
+        print('Before delete:', self.view.graphWidgets.searchGraphBtnList, index)
         if index == 0 and self.view.graphWidgets.tabWidget.count() == 2:
             initialTab = self.view.graphWidgets.setTabInitialView()
             initialTab.searchBtn.clicked.connect(lambda: self.searchGraphAction(index))
-            self.view.graphWidgets.searchGraphBtnList.insert(0,initialTab)
+            self.view.graphWidgets.searchGraphBtnList.insert(0,[initialTab, False, None])
             self.view.graphWidgets.tabWidget.insertTab(index, initialTab, "Blank") 
             self.view.graphWidgets.tabWidget.setCurrentIndex(index)
             self.view.utilWidgets.refreshTable()
             self.view.graphWidgets.tabWidget.removeTab(index+1)
             del self.view.graphWidgets.searchGraphBtnList[index+1]
-
         else:
             if self.view.graphWidgets.tabWidget.currentIndex() > index:
                 self.view.graphWidgets.tabWidget.setCurrentIndex(self.view.graphWidgets.tabWidget.currentIndex())
+
             elif self.view.graphWidgets.tabWidget.currentIndex()  == index:
                 if self.view.graphWidgets.tabWidget.count()-2 == index:
                     self.view.graphWidgets.tabWidget.setCurrentIndex(self.view.graphWidgets.tabWidget.currentIndex() - 1)
@@ -132,6 +133,7 @@ class Controller:
                     self.refreshTableForGraph(basePath)
                 else:
                     self.view.utilWidgets.refreshTable()
+        print('After delete:', self.view.graphWidgets.searchGraphBtnList, index, self.view.graphWidgets.tabWidget.currentIndex())
 
     def searchGraphAction(self, index):
         folderSearch = QFileDialog()
@@ -145,15 +147,15 @@ class Controller:
             self.refreshTabUI(basePath, fileName, index)
     
     def refreshTabUI(self, basePath, fileName, index):
-        print(self.view.graphWidgets.searchGraphBtnList, index)
+        print(self.view.graphWidgets.searchGraphBtnList, index, self.view.graphWidgets.tabWidget.currentIndex() )
         pic = QLabel(self.view.graphWidgets.tabWidget)
         pic.setPixmap(QPixmap(os.path.join(basePath,fileName)))
-        btn = self.view.graphWidgets.searchGraphBtnList[index][0].layout.itemAt(0)
+        btn = self.view.graphWidgets.searchGraphBtnList[self.view.graphWidgets.tabWidget.currentIndex()][0].layout.itemAt(0)
         btn.widget().deleteLater()
-        self.view.graphWidgets.searchGraphBtnList[index][0].layout.addWidget(pic)
-        self.view.graphWidgets.searchGraphBtnList[index][1] = True
-        self.view.graphWidgets.searchGraphBtnList[index][2] = basePath 
-        self.refreshTabTitle(basePath, fileName, index)
+        self.view.graphWidgets.searchGraphBtnList[self.view.graphWidgets.tabWidget.currentIndex()][0].layout.addWidget(pic)
+        self.view.graphWidgets.searchGraphBtnList[self.view.graphWidgets.tabWidget.currentIndex()][1] = True
+        self.view.graphWidgets.searchGraphBtnList[self.view.graphWidgets.tabWidget.currentIndex()][2] = basePath 
+        self.refreshTabTitle(basePath, fileName, self.view.graphWidgets.tabWidget.currentIndex())
         self.refreshTableForGraph(basePath)
 
     def refreshTableForGraph(self, basePath):
