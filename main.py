@@ -97,6 +97,8 @@ def main():
             value['totalTime'] = args.totalTime
         if 'maxSpike' in value:
             value['maxSpike'] = args.maxSpike
+        if 'file_path' in value:
+            value['file_path'] = args.file_path
     timestamp = datetime.datetime.now()
     filepath = f'{timestamp}.yaml'
     with open(filepath, 'w') as file:
