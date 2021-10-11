@@ -145,3 +145,4 @@ metric/*.csv
 *.ipynb
 test*
 trial*
+*.png
