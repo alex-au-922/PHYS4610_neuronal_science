@@ -17,6 +17,7 @@ import csv
 import pathlib
 from utils.plot import PlotGraph
 from utils.checkFunctions import removeFiles
+from utils.runNotification import slack_message
 import time
 
 class WorkerSignal(QObject):
@@ -113,7 +114,7 @@ def main():
     
     # 2. Create Neuron Network from weight matrix, u, v
     network = NeuronNetworkTimeSeries(w_matrix, filepath)
-    dt, totalTime = network_constant['dt'], network_constant['totalTime']
+    dt, totalTime, source = network_constant['dt'], network_constant['totalTime'], network_constant['file_path']
     # 3. Step until time t, store Spike, and time series of v, u, I
     total_time_step = int(totalTime / dt)
 
@@ -140,6 +141,8 @@ def main():
     
     graph = PlotGraph(directory, 'log.csv')
 
+    slack_message(f'Simulation with time step {dt}, total time {totalTime} and source {source} is completed.')
+    os.remove(filepath)
     # pass
 
 def test():

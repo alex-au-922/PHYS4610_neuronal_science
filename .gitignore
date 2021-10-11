@@ -134,6 +134,7 @@ result/*
 # Flask files for slackbot
 flask_*.py
 flask_*.yaml
+slackbotCredential.yaml
 
 # run dependent data
 log.txt
@@ -141,3 +142,6 @@ run.sh
 2*.yaml
 cached_result/*
 metric/*.csv
+*.ipynb
+test*
+trial*

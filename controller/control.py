@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import * 
 from main import MainExecution
 from gui_utils.guiComponents import ProgressBar, showCompleted
-from utils.runNotification import sendNotification
+from utils.runNotification import sendNotification, slack_message
 from utils.checkFunctions import checkSearchPathConstantFile
 import sys
 import os
@@ -32,6 +32,8 @@ class Controller:
         self.mainExecution.signal.finished.connect(self.progress.close)
         self.mainExecution.signal.finished.connect(lambda: showCompleted('Success', 'The simulation has completed.', self.view))
         self.mainExecution.signal.finished.connect(lambda: sendNotification('Izhikevich Model Simulation', 'Simulation Completed'))
+        dt, totalTime, source = self.runSimArgs['Main']['dt'], self.runSimArgs['Main']['totalTime'], self.runSimArgs['Main']['file_path']
+        self.mainExecution.signal.finished.connect(lambda: slack_message(f'Simulation with time step {dt}, total time {totalTime} and source {source} is completed.'))
         self.progress.show()
         self.mainExecution.initialization()
         self.mainExecution.start()

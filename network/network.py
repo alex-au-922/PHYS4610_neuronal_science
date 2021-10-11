@@ -14,7 +14,6 @@ class NeuronNetwork:
     def __init__(self, w_matrix, filePath):
         self.w_matrix = w_matrix
         self.N = len(w_matrix) - 1
-        self.index = 134
         self.arg = {}
         with open(filePath) as stream:
             self.arg.update(yaml.load(stream, Loader=yaml.SafeLoader)['NeuronNetwork'])
@@ -80,6 +79,8 @@ class NeuronNetwork:
     def initialize_from_adj_matrix(self):
         print("Initializing the sparse matrix from adjacency matrix...")
         (i_max, j_max) = self.w_matrix.shape
+        for i in range(1, i_max):
+            self.node_type_map[i] = 0
         for i in tqdm(range(1, i_max)):
             for j in range(1, j_max):
                 w_ij = self.w_matrix[i][j]
@@ -110,7 +111,7 @@ class NeuronNetwork:
                     self.inh_matrix[i][j] = 1
                     self.inh_w_matrix[i][j] = abs(w_ij)
                     continue
-                self.node_type_map[j] = 0
+                # self.node_type_map[j] = 0
 
         
         for i, j_list in self.exc_node_map.items():

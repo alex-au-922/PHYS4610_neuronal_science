@@ -1,11 +1,13 @@
-import numpy as np
 import argparse
 import os
-import utils
-#from  import ReadWeightCSV
+import sys
+sys.path.append('./utils')
+from readcsv import ReadWeightCSV
+from tqdm import tqdm
+import numpy as np
 
 def metricExtract(data_path):
-    weight_csv = utils.readcsv.ReadWeightCSV(data_path)
+    weight_csv = ReadWeightCSV(data_path)
     # w_matrix
     w_matrix = weight_csv.connectionMatrix
     # w_matrix_plus
@@ -29,10 +31,17 @@ def metricExtract(data_path):
     s_out_plus = np.sum(w_matrix_plus, axis = 0) / k_out_plus
     s_out_minus = np.sum(w_matrix_minus, axis = 0) / k_out_minus
 
-    big_matrix = np.vstack((k_in, k_in_plus, k_in_minus, k_out, k_out_plus, k_out_minus, s_in, s_in_plus, s_in_minus, s_out, s_out_plus, s_out_minus)).T
+    (i_max, j_max) = w_matrix.shape
+    node_type_map = np.zeros(j_max)
+    for j in tqdm(range(j_max)):
+        weight_matrix_vec = w_matrix[:, j]
+        node_type_map[j] = 0 if all(weight_matrix_vec == 0) else -1 if all(weight_matrix_vec <= 0) else 1 
+    
+    big_matrix = np.vstack((node_type_map, k_in, k_in_plus, k_in_minus, k_out, k_out_plus, k_out_minus, s_in, s_in_plus, s_in_minus, s_out, s_out_plus, s_out_minus)).T
     _, fileName = os.path.split(data_path)
-    currentPath = os.getcwd()
+    currentPath, _ = os.path.split(__file__)
     newFileName = 'metric_'+fileName.replace('.txt', '.csv')
+
     np.savetxt(os.path.join(currentPath, newFileName),big_matrix, delimiter='\t')
 
 if __name__ == '__main__':
