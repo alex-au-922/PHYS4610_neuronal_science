@@ -7,7 +7,6 @@ import yaml
 import numpy as np
 import seaborn as sns
 from tqdm import tqdm
-import numba as nb
 
 class PlotGraph:
     def __init__(self, pathname, filename, firing_bin = 40, isi_bin = 40):
