@@ -124,13 +124,13 @@ def main():
     #     #network.output()
         network.step()
         # break
-    
     baseFolder = pathlib.Path('./result')
     if not os.path.exists(baseFolder):
         os.mkdir(baseFolder)
     
     directory = baseFolder / f'{dt}_{totalTime}'
-    os.mkdir(directory)
+    if not os.path.exists(directory):
+        os.mkdir(directory)
     shutil.move('log.txt', directory)
 
     shutil.copy(filepath, directory / 'result_constants.yaml')
