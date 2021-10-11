@@ -1,9 +1,7 @@
-from numba.np.ufunc import parallel
 from .node import *
 import yaml
 import utils.functions
 import numpy as np
-import numba as nb
 from tqdm import tqdm
 import csv
 import math

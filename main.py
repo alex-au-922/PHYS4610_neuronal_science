@@ -8,7 +8,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import * 
 from utils.parser import parse_arg
 import numpy as np
-import numba as nb
 from tqdm import tqdm
 import datetime
 import shutil
