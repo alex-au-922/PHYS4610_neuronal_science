@@ -1,8 +1,8 @@
 NeuronNetwork:
   VinitLowBound: -75
-  VinitUpBound: 15
+  VinitUpBound: -20
   UinitLowBound: 0
-  UinitUpBound: 16
+  UinitUpBound: 12
   seed: 10
   maxSpike: 1000
   sigma: 3

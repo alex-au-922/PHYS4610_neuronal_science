@@ -78,6 +78,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.current_step = 0
         log = BaseLogger(self.__class__.__name__)
         self.logger = log.logger
+        self.overflow_reset_index = []
         with open(filePath) as stream:
             self.arg.update(yaml.load(stream)['NeuronNetworkTimeSeries'])
         
@@ -90,50 +91,53 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.logger.info(f'{self.inh_exponentials}')
     
     def v_step(self):
-        noise_arr = utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
         try:
+            noise_arr = utils.functions.random_gaussian(self.arg['sigma'], len(self.v_arr))*np.sqrt(self.arg['dt'])
+            # self.logger.info(f'{noise_arr}')
             self.buff_v_arr = self.v_arr +(self.arg['c1']*self.v_arr**2 + self.arg['c2'] * self.v_arr 
-             + self.arg['c3'] + self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr)*self.arg['dt'] + noise_arr
+                + self.arg['c3'] + self.arg['c4'] * self.u_arr+ self.arg['c5']*self.I_arr)*self.arg['dt'] + noise_arr
+            self.logger.info(f'{self.buff_v_arr[:10]}')
         except Exception as e:
-            self.logger.exception(f'{e}')
-            self.logger.exception(f'{self.buff_v_arr}')
+            self.logger.info(f'{e}')
+            for i in range(len(self.buff_v_arr)):
+                try:
+                    self.buff_v_arr[i] = self.v_arr[i] +(self.arg['c1']*self.v_arr[i]**2 + self.arg['c2'] * self.v_arr[i] 
+                    + self.arg['c3'] + self.arg['c4'] * self.u_arr[i]+ self.arg['c5']*self.I_arr[i])*self.arg['dt'] + noise_arr[i]
+                except Exception as e:
+                    self.overflow_reset_index.append(i)
+                    self.logger.exception(f'Index {i} has an overflow.\n{self.buff_v_arr[i]}')
 
-            # @nb.njit()
-            def check_overflow():
-                for i in range(len(self.v_arr)):
-                    try:
-                        self.buff_v_arr[i] = self.v_arr[i] + (self.arg['c1']*self.v_arr[i]**2 + self.arg['c2'] * self.v_arr[i] \
-                            + self.arg['c3'] + self.arg['c4'] * self.u_arr + self.arg['c5'] * self.I_arr[i]) * self.arg['dt']+ noise_arr[i]
-                    except Exception:
-                        self.reset_index.append(i)
-
-            check_overflow()
 
     def u_step(self):
         try:
             self.buff_u_arr =  self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt']
         except Exception as e:
-            self.logger.exception(f'{e}')
-            self.logger.exception(f'{self.buff_v_arr}')
-            
-            # @nb.njit()
-            def check_overflow():
-                for i in range(len(self.u_arr)):
-                    try:
-                        self.buff_u_arr[i] =  self.u_arr[i] + (self.a[i] * (self.b[i] * self.v_arr[i] - self.u_arr[i]))*self.arg['dt']
-                    except Exception:
-                        self.reset_index.append(i)
-            
-            check_overflow()
-        #self.buff_u_arr =  np.clip(self.u_arr + (self.a * (self.b * self.v_arr - self.u_arr))*self.arg['dt'], -1e5, 1e5, self.b*self.v_arr)
+            self.logger.info(f'{e}')
+            for i in range(len(self.buff_u_arr)):
+                try:
+                    self.buff_u_arr[i] = self.u_arr[i] + (self.a[i] * (self.b[i] * self.v_arr[i] - self.u_arr[i]))*self.arg['dt']
+                except Exception as e:
+                    self.overflow_reset_index.append(i)
+                    self.logger.exception(f'Index {i} has an overflow.\n{self.buff_u_arr[i]}')
 
     def I_step(self):
-        self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+        try:
+            self.buff_I_arr = self.G_exc_arr*(self.arg['ve'] - self.v_arr) - (self.G_inh_arr*(self.v_arr - self.arg['vI']))
+        except Exception as e:
+            self.logger.info(f'{e}')
+            for i in range(len(self.buff_I_arr)):
+                try:
+                    self.buff_I_arr[i] = self.G_exc_arr[i]*(self.arg['ve'] - self.v_arr[i]) - (self.G_inh_arr[i]*(self.v_arr[i] - self.arg['vI']))
+                except Exception as e:
+                    self.overflow_reset_index.append(i)
+                    self.logger.exception(f'Index {i} has an overflow.\n{self.buff_I_arr[i]}')
 
     #@profile
     def G_exc_step(self):
         # sum_of_exp: (N+1) x 1 vector, sum_of_exp[j] => Summation part of Neuron j
         sum_of_exp = np.matmul(  (self.t_spike * self.exc_exponentials), self.one_vec )
+        # self.logger.info(f'{self.t_spike = }')
+        # self.logger.info(f'{self.exc_exponentials = }')
         return self.arg['beta'] * np.matmul( self.exc_w_matrix, sum_of_exp )
 
     #@profile
@@ -144,6 +148,7 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
 
     # @profile
     def step(self):
+        
         exceeded_indies = np.where(self.v_arr >= self.arg["max_v"])[0]
         # print(f"u = {self.u_arr[0]}, v = {self.v_arr[0]}")
 
@@ -164,11 +169,6 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         # Calcutaion
         self.v_step()
         self.u_step()
-
-        if self.reset_index != []:
-            self.buff_v_arr[self.reset_index] = self.c[self.reset_index]
-            self.buff_u_arr[self.reset_index] += self.d[self.reset_index]
-            self.reset_index = []
         
         new_G_exc = self.G_exc_step()
         new_G_inh = self.G_inh_step()
@@ -180,6 +180,14 @@ class NeuronNetworkTimeSeries(NeuronNetwork):
         self.I_arr = self.buff_I_arr
         self.G_exc_arr = new_G_exc
         self.G_inh_arr = new_G_inh
+
+        if self.overflow_reset_index != []:
+            self.overflow_reset_index = list(set(self.overflow_reset_index))
+            self.v_arr[self.overflow_reset_index] = self.c[self.overflow_reset_index]
+            self.u_arr[self.overflow_reset_index] += self.d[self.overflow_reset_index]
+            self.overflow_reset_index = []
+
+        
        
         self.time += self.arg["dt"]
         self.current_step += 1
