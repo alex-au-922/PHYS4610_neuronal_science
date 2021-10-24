@@ -1,5 +1,5 @@
 from plyer import notification
-from slack import WebClient
+from slack_sdk import WebClient
 import yaml
 import os
 def sendNotification(appName, message):

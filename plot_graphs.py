@@ -7,8 +7,8 @@ from datetime import datetime
 def define_parse():
     parser = argparse.ArgumentParser('Specify the directory and bins of the plot.')
     parser.add_argument('-d', '--dir', type=str, default = None, help = 'Path to directory where log.csv exists.')
-    parser.add_argument('-fb', '--fire_bin', type=int, default = 40, help='Bins of the firing frequency plot.')
-    parser.add_argument('-ib', '--isi_bin', type=int, default = 40, help='Bins of the ISI plot.')
+    parser.add_argument('-fb', '--fire_bin_size', type=float, default = 0.1, help='Bins of the firing frequency plot.')
+    parser.add_argument('-ib', '--isi_bin_size', type=float, default = 0.1, help='Bins of the ISI plot.')
     args = parser.parse_args()
     return args
 
@@ -26,6 +26,6 @@ if __name__ =="__main__":
     print(directory)
 
     try:
-        graph = PlotGraph(directory, 'log.csv', args.fire_bin, args.isi_bin)
+        graph = PlotGraph(directory, 'log.csv', args.fire_bin_size, args.isi_bin_size)
     except OSError as e:
         print(f'{directory} does not exist!')

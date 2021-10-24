@@ -15,7 +15,8 @@ import os
 import csv
 import pathlib
 from utils.plot import PlotGraph
-from utils.checkFunctions import removeFiles
+from utils.functions import removeFiles
+from utils.logger import BaseLogger
 from utils.runNotification import slack_message
 import time
 
@@ -98,6 +99,8 @@ def main():
             value['maxSpike'] = args.maxSpike
         if 'file_path' in value:
             value['file_path'] = args.file_path
+        if 'seed' in value:
+            value['seed'] = args.seed
     timestamp = datetime.datetime.now()
     filepath = f'{timestamp}.yaml'
     with open(filepath, 'w') as file:
@@ -106,12 +109,13 @@ def main():
 
     with open(filepath) as stream:
         network_constant = yaml.safe_load(stream)["Main"]
-    w_matrix = ReadWeightCSV(network_constant['file_path']).values
 
-    if os.path.exists('log.txt'):
-        os.remove('log.txt')
-    with open('log.txt','w') as file:
-        pass
+    log = BaseLogger(__name__, remove = True)
+
+    for key, value in network_constant.items():
+        log.logger.info(f'{key} = {value}')
+    
+    w_matrix = ReadWeightCSV(network_constant['file_path']).values
     
     # 2. Create Neuron Network from weight matrix, u, v
     network = NeuronNetworkTimeSeries(w_matrix, filepath)
@@ -128,10 +132,10 @@ def main():
     if not os.path.exists(baseFolder):
         os.mkdir(baseFolder)
     
-    directory = baseFolder / f'{dt}_{totalTime}'
+    directory = baseFolder / '{}_{}_{}'.format(dt,totalTime,timestamp.strftime('%Y%m%d_%H%M%S'))
     if not os.path.exists(directory):
         os.mkdir(directory)
-    shutil.move('log.txt', directory)
+    shutil.move('neural.log', directory)
 
     shutil.copy(filepath, directory / 'result_constants.yaml')
     print('Writing spikes record...')
@@ -145,15 +149,6 @@ def main():
     slack_message(f'Simulation with time step {dt}, total time {totalTime} and source {source} is completed.')
     os.remove(filepath)
     # pass
-
-def test():
-    with open('constants.yaml') as stream:
-        network_constant = yaml.safe_load(stream)["Main"]
-    w_matrix = ReadWeightCSV(network_constant['file_path']).values
-    print(w_matrix)
-    network = NeuronNetworkTimeSeries(w_matrix)
-    print(network.exc_node_map)
-    print(network.inh_node_map)
 
 
 if __name__ == "__main__":

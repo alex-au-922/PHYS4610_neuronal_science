@@ -6,4 +6,4 @@ seaborn
 scipy
 PyQt5
 plyer
-slack
+slack_sdk

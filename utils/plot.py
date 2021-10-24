@@ -56,13 +56,12 @@ class PlotGraph:
 
         length = np.array(length)
         # density, x_value = np.histogram(length, bins = np.linspace(0, np.max(length), self.firing_bin), density = True)
-        density, x_value = np.histogram(length, bins = np.linspace(0, 12, self.firing_bin), density = True)
-        x_value = x_value[:-1]
+        density, x_value = np.histogram(length, bins = np.arange(0, np.max(length), self.firing_bin), density = True)
+        x_value = (x_value[:-1] + x_value[1:])/2
 
         fig,ax = plt.subplots()
         ax.plot(x_value, density)
         ax.set_xlim(0, 10)
-        ax.set_ylim(0, None)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))
     
@@ -92,7 +91,7 @@ class PlotGraph:
         self.write_csv(zip(index, interval), os.path.join(self.pathname, 'log_spike_interval.csv'))
 
         interval = np.log10(np.array(interval, dtype = np.float64)*self.arg['dt'] / 1000)
-        density, x_value = np.histogram(interval, bins = np.linspace((np.min(interval)), np.max(interval), self.isi_bin), density = True)
+        density, x_value = np.histogram(interval, bins = np.arange((np.min(interval)), np.max(interval), self.isi_bin), density = True)
         x_value = np.power(10,x_value)
         x_value = (x_value[1:] + x_value[:-1])/2
 
