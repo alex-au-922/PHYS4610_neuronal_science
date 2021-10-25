@@ -146,3 +146,5 @@ metric/*.csv
 test*
 trial*
 *.png
+*.pptx
+*.csv

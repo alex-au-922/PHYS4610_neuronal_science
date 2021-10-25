@@ -4,8 +4,8 @@ import utils.functions
 from utils.checkFunctions import check_node_type
 import numpy as np
 from tqdm import tqdm
-import csv
 import math
+import os
 from utils.logger import BaseLogger
 
 np.seterr(all='raise')
@@ -26,8 +26,12 @@ class NeuronNetwork:
         
         utils.functions.random_seed(self.arg['seed'])
         self.I_arr = np.zeros(self.N + 1)
-        self.u_arr = utils.functions.random_vec(self.N + 1, self.arg['VinitLowBound'], self.arg['VinitUpBound'])
-        self.v_arr = utils.functions.random_vec(self.N + 1, self.arg['UinitLowBound'], self.arg['UinitUpBound'])
+        if os.environ.get('DEBUG'):
+            self.u_arr = utils.functions.random_u_vec(filePath = 'data/u_init.txt')
+            self.v_arr = utils.functions.random_v_vec(filePath = 'data/v_init.txt')
+        else:
+            self.u_arr = utils.functions.random_v_vec(numberOfNodes = self.N + 1, lowBound = self.arg['UinitLowBound'], upBound = self.arg['UinitUpBound'])
+            self.v_arr = utils.functions.random_u_vec(numberOfNodes = self.N + 1, lowBound = self.arg['VinitLowBound'], upBound = self.arg['VinitUpBound'])
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
         self.t_spike = [np.zeros(self.arg['maxSpike']) for _ in range(self.N + 1)]
