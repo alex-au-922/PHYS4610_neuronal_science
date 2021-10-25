@@ -113,7 +113,7 @@ def main():
     log = BaseLogger(__name__, remove = True)
 
     if os.environ.get('DEBUG'):
-        log.logger.warning('Debug mode is activated...')
+        log.logger.warning('Debug mode is activated.')
 
     for key, value in network_constant.items():
         log.logger.info(f'{key} = {value}')

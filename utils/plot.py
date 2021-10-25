@@ -60,7 +60,8 @@ class PlotGraph:
         x_value = (x_value[:-1] + x_value[1:])/2
 
         fig,ax = plt.subplots()
-        ax.plot(x_value, density)
+        ax.plot(x_value, density, marker = '^')
+        ax.grid(True)
         ax.set_xlim(0, 10)
         ax.set(xlabel = "Firing Rate (Hz)", ylabel = "Probability Density")
         fig.savefig(os.path.join(self.pathname, 'firing_rate.jpg'))

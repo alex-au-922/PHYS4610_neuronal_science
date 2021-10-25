@@ -11,7 +11,6 @@ def random_vec(numberOfNodes: int, lowBound:float, upBound: float) -> np.ndarray
 def read_init_txt(filePath):
     return pd.read_csv(filePath, sep='\t', header = None).iloc[0].values
 
-
 def random_v_vec(numberOfNodes = None, lowBound = None, upBound = None, filePath = None) -> np.ndarray:
     if os.environ.get('DEBUG'):
         return read_init_txt(filePath)

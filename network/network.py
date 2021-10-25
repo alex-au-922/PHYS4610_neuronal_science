@@ -32,6 +32,9 @@ class NeuronNetwork:
         else:
             self.u_arr = utils.functions.random_v_vec(numberOfNodes = self.N + 1, lowBound = self.arg['UinitLowBound'], upBound = self.arg['UinitUpBound'])
             self.v_arr = utils.functions.random_u_vec(numberOfNodes = self.N + 1, lowBound = self.arg['VinitLowBound'], upBound = self.arg['VinitUpBound'])
+        self.buff_u_arr = np.zeros_like(self.u_arr) 
+        self.buff_v_arr = np.zeros_like(self.v_arr)
+        self.buff_I_arr = np.zeros_like(self.I_arr)
         self.G_exc_arr = np.zeros(self.N + 1)
         self.G_inh_arr = np.zeros(self.N + 1)
         self.t_spike = [np.zeros(self.arg['maxSpike']) for _ in range(self.N + 1)]
