@@ -1,6 +1,8 @@
 import os
 from gui_utils.guiComponents import showError
 from utils.logger import BaseLogger
+import numpy as np
+import sys
 
 def checkSearchPathConstantFile(basePath, parent):
     if 'result_constants.yaml' not in os.listdir(basePath):
@@ -15,6 +17,10 @@ def check_node_type(w_matrix):
         inhi_condition = all(column <=0) and not any (column > 0)
         exci_condition = all(column >= 0) and not any(column < 0)
         if (not inhi_condition) and (not exci_condition):
-            logger.exception(f'Error for node {i}: The node cannot be both inhibitory and excitatory!\n{w_matrix[:, i]}')
-            raise AssertionError(f'Error for node {i}: The node cannot be both inhibitory and excitatory!\n') 
+            if os.environ.get('FUNC'):
+                log.logger.warning('Functional Connectivity Mode is activated.')
+            else:
+                np.set_printoptions(threshold=sys.maxsize)
+                log.logger.exception(f'Error for node {i}: The node cannot be both inhibitory and excitatory!\n{w_matrix[:, i]}')
+                raise AssertionError(f'Error for node {i}: The node cannot be both inhibitory and excitatory!\n') 
             
